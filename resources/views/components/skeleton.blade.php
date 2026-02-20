@@ -1,0 +1,1 @@
+<div {{ $attributes->merge(['class' => 'animate-pulse rounded-2xl bg-gray-100']) }}></div>
