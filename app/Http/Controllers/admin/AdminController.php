@@ -37,6 +37,8 @@ class AdminController extends Controller
      */
     public function analytics()
     {
+        $totalOrders = Order::count();
+        $totalCustomers = User::where('role', 'user')->count();
         $completedOrders = Order::where('status', 'completed')->get();
         $totalRevenue = $completedOrders->sum('total');
         
@@ -54,7 +56,7 @@ class AdminController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.analytics', compact('totalRevenue', 'averageOrderValue', 'topItems'));
+        return view('admin.analytics', compact('totalRevenue', 'averageOrderValue', 'topItems', 'totalOrders', 'totalCustomers'));
     }
 
     // --- FITUR KELOLA MENU ---

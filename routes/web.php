@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\FoodController;
 use App\Models\Food;
 
 /*
@@ -49,6 +50,9 @@ Route::get('/menu', function () {
     $menuItems = \App\Models\Food::all(); 
     return view('pages.menu', compact('menuItems'));
 })->name('menu');
+
+
+Route::get('/', [FoodController::class, 'topRating']);
 
 /*
 |--------------------------------------------------------------------------
