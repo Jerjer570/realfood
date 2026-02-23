@@ -1,3 +1,33 @@
+@php
+    // Pindahkan data dari komentar ke sini agar menjadi variabel aktif
+    $menuItems = [
+        (object)[
+            'name' => 'Grilled Salmon Bowl',
+            'description' => 'Salmon panggang dengan sayuran segar dan quinoa',
+            'price' => 85000,
+            'rating' => 4.8,
+            'calories' => '450 kal',
+            'image' => asset('images/poto2.jpeg')
+        ],
+        (object)[
+            'name' => 'Fresh Garden Salad',
+            'description' => 'Salad sayuran organik dengan dressing vinaigrette',
+            'price' => 45000,
+            'rating' => 4.7,
+            'calories' => '280 kal',
+            'image' => asset('images/poto3.jpeg')
+        ],
+        (object)[
+            'name' => 'Açaí Berry Bowl',
+            'description' => 'Smoothie bowl dengan topping buah segar dan granola',
+            'price' => 55000,
+            'rating' => 4.9,
+            'calories' => '320 kal',
+            'image' => asset('images/poto7.webp')
+        ]
+    ];
+@endphp
+
 <section id="menu" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
@@ -6,8 +36,12 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
+<<<<<<< HEAD
+            {{-- Baris 11 sekarang akan berfungsi karena $menuItems sudah ada di atas --}}
+=======
             
 
+>>>>>>> 41a5e4cc35fde4948e3f89b317758a08d6fad597
             @foreach($menuItems as $item)
             <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
                 <div class="relative aspect-square overflow-hidden">
