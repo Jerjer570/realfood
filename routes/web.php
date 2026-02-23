@@ -6,7 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\FoodController;
-use App\Models\Food;
+use App\Http\Controllers\ServiceController; // Tambahkan ini
 
 /*
 |--------------------------------------------------------------------------
@@ -14,24 +14,26 @@ use App\Models\Food;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Home - Menampilkan Top Rating
+Route::get('/', [FoodController::class, 'topRating'])->name('home');
 
 // Halaman Pelajari Selengkapnya
 Route::get('/pelajari-selengkapnya', function () {
     return view('pages.pelajari_selengkapnya'); 
 })->name('about.detail');
 
-Route::get('/proses/bahan-baku', function () {
-    return view('pages.proses.bahan');
-})->name('proses.bahan');
+// Route Menu Utama
+Route::get('/menu', function () {
+    $menuItems = \App\Models\Food::all(); 
+    return view('pages.menu', compact('menuItems'));
+})->name('menu');
 
-/**
- * Route untuk Detail Proses (Kartu yang bisa diklik)
- * Pastikan file-file ini ada di: resources/views/pages/proses/
- */
+// Detail Proses
 Route::prefix('proses')->name('proses.')->group(function () {
+    Route::get('/bahan-baku', function () {
+        return view('pages.proses.bahan');
+    })->name('bahan');
+
     Route::get('/pemilihan-benih', function () {
         return view('pages.proses.benih');
     })->name('benih');
@@ -45,14 +47,13 @@ Route::prefix('proses')->name('proses.')->group(function () {
     })->name('pengiriman');
 });
 
-// Route Menu Utama
-Route::get('/menu', function () {
-    $menuItems = \App\Models\Food::all(); 
-    return view('pages.menu', compact('menuItems'));
-})->name('menu');
-
-
-Route::get('/', [FoodController::class, 'topRating']);
+// Halaman Layanan
+Route::prefix('services')->name('services.')->group(function () {
+    Route::get('/delivery', [ServiceController::class, 'delivery'])->name('delivery');
+    Route::get('/catering', [ServiceController::class, 'catering'])->name('catering');
+    Route::get('/meal-plan', [ServiceController::class, 'mealPlan'])->name('meal-plan');
+    Route::get('/gift-card', [ServiceController::class, 'giftCard'])->name('gift-card');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -62,7 +63,6 @@ Route::get('/', [FoodController::class, 'topRating']);
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
@@ -79,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
     // Keranjang Belanja
     Route::prefix('cart')->name('cart.')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add/{id}', [CartController::class, 'addToCart'])->name('add');
         Route::patch('/{id}', [CartController::class, 'update'])->name('update');
         Route::delete('/{id}', [CartController::class, 'destroy'])->name('destroy');
     });
@@ -86,7 +87,6 @@ Route::middleware(['auth'])->group(function () {
     // Checkout
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
-
 
 Route::middleware(['auth'])->group(function () {
     // Route untuk tombol tambah keranjang
@@ -111,8 +111,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
-
-    // --- PENAMBAHAN ROUTE LAPORAN KEUANGAN ---
     Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
     
     // Kelola Menu Admin
