@@ -110,7 +110,7 @@
                                 <option value="Bowls">Bowls</option>
                                 <option value="Salads">Salads</option>
                                 <option value="Drinks">Drinks</option>
-                                <option value="Drinks">Main Course</option>
+                                <option value="MainCourse">Main Course</option>
                             </select>
                         </div>
                     </div>

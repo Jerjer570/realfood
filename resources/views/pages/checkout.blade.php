@@ -88,23 +88,6 @@
         </div>
     </div>
 </div>
-                            {{-- Ubah name dari paymentMethod menjadi payment_method sesuai Controller --}}
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" name="payment_method" value="transfer" checked class="peer sr-only">
-                                <div class="px-6 py-4 rounded-2xl bg-gray-50 border-2 border-transparent peer-checked:border-green-600 peer-checked:bg-green-50 font-bold text-center transition-all">
-                                    Transfer Bank
-                                </div>
-                            </label>
-                            
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" name="payment_method" value="cod" class="peer sr-only">
-                                <div class="px-6 py-4 rounded-2xl bg-gray-50 border-2 border-transparent peer-checked:border-green-600 peer-checked:bg-green-50 font-bold text-center transition-all">
-                                    COD (Bayar di Tempat)
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
 
                 {{-- Bagian Kanan: Ringkasan --}}
                 <div class="lg:col-span-1">
