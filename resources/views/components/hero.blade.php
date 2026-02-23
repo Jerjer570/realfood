@@ -9,13 +9,10 @@
                     Nikmati hidangan segar dan bergizi yang disiapkan dengan bahan-bahan organik pilihan untuk gaya hidup sehat Anda.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button class="bg-green-600 text-white px-8 py-4 rounded-full hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-lg">
+                    <a href="{{ url('/menu') }}" class="bg-green-600 text-white px-8 py-4 rounded-full hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-lg">
                         Pesan Sekarang
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-                    <button class="border-2 border-green-600 text-green-600 px-8 py-4 rounded-full hover:bg-green-50 transition-colors text-lg">
-                        Lihat Menu
-                    </button>
+                    </a>
                 </div>
             </div>
             
