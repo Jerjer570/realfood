@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     /**
-     * Dashboard Utama Admin
+     * 1. DASHBOARD UTAMA
+     * Menampilkan ringkasan statistik cepat dan pesanan terbaru.
      */
     public function index()
     {
@@ -33,7 +34,8 @@ class AdminController extends Controller
     }
 
     /**
-     * Halaman Analytics
+     * 2. HALAMAN ANALYTICS
+     * Fokus pada performa menu, tren, dan data visual.
      */
     public function analytics()
     {
@@ -46,21 +48,53 @@ class AdminController extends Controller
             ? $totalRevenue / $completedOrders->count() 
             : 0;
 
+        // Query Menu Terlaris (Top Selling Items)
         $topItems = DB::table('order_items')
             ->join('food', 'order_items.food_id', '=', 'food.id')
             ->select('food.name', 
                      DB::raw('SUM(order_items.quantity) as count'), 
                      DB::raw('SUM(order_items.quantity * order_items.price) as revenue'))
-            ->groupBy('food.name', 'food.id') // Ditambahkan food.id agar lebih stabil di beberapa versi SQL
+            ->groupBy('food.name', 'food.id')
             ->orderByDesc('count')
             ->take(5)
             ->get();
 
-        return view('admin.analytics', compact('totalRevenue', 'averageOrderValue', 'topItems', 'totalOrders', 'totalCustomers'));
+        return view('admin.analytics', compact(
+            'totalRevenue', 
+            'averageOrderValue', 
+            'topItems', 
+            'totalOrders', 
+            'totalCustomers'
+        ));
     }
 
-    // --- FITUR KELOLA MENU ---
+    /**
+     * 3. HALAMAN LAPORAN KEUANGAN (NEW)
+     * Halaman khusus untuk ekspor metrik finansial utama (AOV, Revenue, dll).
+     */
+    public function financialReport()
+    {
+        $completedOrders = Order::where('status', 'completed')->get();
+        
+        $totalRevenue = $completedOrders->sum('total');
+        $totalOrders = Order::count();
+        $totalCustomers = User::where('role', 'user')->count();
+        
+        $averageOrderValue = $completedOrders->count() > 0 
+            ? $totalRevenue / $completedOrders->count() 
+            : 0;
 
+        return view('admin.reports.financial', compact(
+            'totalRevenue', 
+            'totalOrders', 
+            'totalCustomers', 
+            'averageOrderValue'
+        ));
+    }
+
+    /**
+     * 4. FITUR KELOLA MENU (CRUD)
+     */
     public function menuIndex()
     {
         $menuItems = Food::latest()->get();
@@ -113,12 +147,13 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Menu berhasil dihapus!');
     }
 
-    // --- FITUR KELOLA PESANAN ---
-
+    /**
+     * 5. FITUR KELOLA PESANAN
+     */
     public function ordersIndex(Request $request)
     {
         $status = $request->query('status', 'all');
-        $query = Order::with(['user', 'items.food'])->latest(); // Tambahkan items.food agar data item muncul
+        $query = Order::with(['user', 'items.food'])->latest();
 
         if ($status !== 'all') {
             $query->where('status', $status);
@@ -137,11 +172,12 @@ class AdminController extends Controller
         $order = Order::findOrFail($id);
         $order->update(['status' => $request->status]);
 
-        return back()->with('success', 'Status pesanan #' . $id . ' berhasil diupdate!');
+        return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }
 
-    // --- FITUR KELOLA PENGGUNA ---
-
+    /**
+     * 6. FITUR KELOLA PENGGUNA
+     */
     public function usersIndex(Request $request)
     {
         $role = $request->query('role', 'all');
