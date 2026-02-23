@@ -20,7 +20,7 @@
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group"
                  x-show="searchQuery === '' || '{{ strtolower($item->name) }}'.includes(searchQuery.toLowerCase())">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="{{ $item->image }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                  <img src="{{ asset('images/' . $item->image) }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-green-600">
                         {{ $item->calories }} kal
                     </div>

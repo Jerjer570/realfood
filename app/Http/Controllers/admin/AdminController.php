@@ -8,12 +8,12 @@ use App\Models\User;
 use App\Models\Food;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class AdminController extends Controller
 {
     /**
      * 1. DASHBOARD UTAMA
-     * Menampilkan ringkasan statistik cepat dan pesanan terbaru.
      */
     public function index()
     {
@@ -27,7 +27,6 @@ class AdminController extends Controller
             'completedOrders' => Order::where('status', 'completed')->count(),
         ];
 
-        // Mengambil 5 pesanan terbaru beserta data user-nya
         $recentOrders = Order::with('user')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recentOrders'));
@@ -35,7 +34,6 @@ class AdminController extends Controller
 
     /**
      * 2. HALAMAN ANALYTICS
-     * Fokus pada performa menu, tren, dan data visual.
      */
     public function analytics()
     {
@@ -48,7 +46,6 @@ class AdminController extends Controller
             ? $totalRevenue / $completedOrders->count() 
             : 0;
 
-        // Query Menu Terlaris (Top Selling Items)
         $topItems = DB::table('order_items')
             ->join('food', 'order_items.food_id', '=', 'food.id')
             ->select('food.name', 
@@ -69,13 +66,11 @@ class AdminController extends Controller
     }
 
     /**
-     * 3. HALAMAN LAPORAN KEUANGAN (NEW)
-     * Halaman khusus untuk ekspor metrik finansial utama (AOV, Revenue, dll).
+     * 3. HALAMAN LAPORAN KEUANGAN
      */
     public function financialReport()
     {
         $completedOrders = Order::where('status', 'completed')->get();
-        
         $totalRevenue = $completedOrders->sum('total');
         $totalOrders = Order::count();
         $totalCustomers = User::where('role', 'user')->count();
@@ -107,17 +102,27 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
-            'image' => 'required|url',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'category' => 'required|string',
+            'rating' => 'nullable|numeric|min:0|max:5', // Tambahan validasi rating
+            'calories' => 'nullable|numeric',           // Tambahan validasi kalori
         ]);
+
+        $imageName = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+        }
 
         Food::create([
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
-            'image' => $request->image,
+            'image' => $imageName,
             'category' => $request->category,
-            'rating' => 0,
+            'rating' => $request->rating ?? 0,    // Simpan rating
+            'calories' => $request->calories ?? 0, // Simpan kalori
         ]);
 
         return redirect()->back()->with('success', 'Menu berhasil ditambahkan!');
@@ -129,12 +134,28 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
-            'image' => 'required|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'category' => 'required|string',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'calories' => 'nullable|numeric',
         ]);
 
         $food = Food::findOrFail($id);
-        $food->update($request->all());
+        $data = $request->except('image'); // Ambil semua data kecuali gambar dulu
+
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama dari folder
+            if ($food->image && File::exists(public_path('images/' . $food->image))) {
+                File::delete(public_path('images/' . $food->image));
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $data['image'] = $imageName;
+        }
+
+        $food->update($data);
 
         return redirect()->back()->with('success', 'Menu berhasil diperbarui!');
     }
@@ -142,6 +163,12 @@ class AdminController extends Controller
     public function menuDestroy($id)
     {
         $food = Food::findOrFail($id);
+
+        // Hapus file gambar dari folder public/images sebelum menghapus data
+        if ($food->image && File::exists(public_path('images/' . $food->image))) {
+            File::delete(public_path('images/' . $food->image));
+        }
+
         $food->delete();
 
         return redirect()->back()->with('success', 'Menu berhasil dihapus!');
