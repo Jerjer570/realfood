@@ -9,20 +9,31 @@ class Food extends Model
 {
     use HasFactory;
 
-<<<<<<< HEAD
-    protected $table = 'food'; // Memaksa Laravel menggunakan tabel 'food'
-=======
-    // Nama tabel di database (pastikan sesuai dengan migrasi Anda)
+    /**
+     * Nama tabel yang digunakan oleh model ini.
+     * Secara default Laravel mencari 'foods', jadi kita paksa ke 'food'.
+     */
     protected $table = 'food'; 
->>>>>>> 41a5e4cc35fde4948e3f89b317758a08d6fad597
 
+    /**
+     * Atribut yang dapat diisi secara massal (Mass Assignable).
+     * Pastikan kolom-kolom ini ada di tabel database Anda.
+     */
     protected $fillable = [
         'name',
         'description',
         'price',
         'image',
         'category',
-        'rating',
-        'calories',
+        'rating',   // Tetap masukkan jika ingin diisi manual/seeder
+        'calories', // Tambahkan jika memang ada di struktur tabel
+    ];
+
+    /**
+     * Opsional: Jika rating selalu dimulai dari 0, 
+     * kita bisa mengatur default value di sini.
+     */
+    protected $attributes = [
+        'rating' => 0,
     ];
 }

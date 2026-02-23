@@ -8,7 +8,6 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Kode ini dikonversi dari interface Order di index.ts
      */
     public function up(): void
     {
@@ -19,12 +18,15 @@ return new class extends Migration
             
             $table->decimal('total', 12, 2); // Total bayar
             
-            // Status pesanan sesuai enum di index.ts
+            // Status pesanan
             $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
             
+            // Kolom Tambahan yang Wajib Ada
             $table->text('deliveryAddress'); // Alamat pengiriman
-            $table->string('phone'); // Nomor telepon untuk pesanan
-            $table->timestamps(); // Mencatat waktu pesanan dibuat (createdAt)
+            $table->string('phone'); // Nomor telepon
+            $table->string('payment_method'); // TAMBAHKAN INI agar tidak error 'Unknown column'
+            
+            $table->timestamps(); // Mencatat waktu pesanan dibuat
         });
     }
 

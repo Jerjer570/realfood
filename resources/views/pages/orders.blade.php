@@ -51,7 +51,7 @@
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-4">
                                         <div class="text-sm">
-                                            <p class="font-bold text-gray-900">{{ $item->name }}</p>
+                                            <p class="font-bold text-gray-900">{{ $item->food->name }}</p>
                                             <p class="text-gray-500">Qty: {{ $item->quantity }}</p>
                                         </div>
                                     </div>
@@ -67,9 +67,11 @@
                             </div>
                             
                             @if($order->status == 'completed')
-                                <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
-                                    Pesan Lagi
-                                </button>
+                                <a href="{{ route('menu') }}">
+    <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+        Pesan Lagi
+    </button>
+</a>
                             @endif
                         </div>
 

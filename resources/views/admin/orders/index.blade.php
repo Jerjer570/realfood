@@ -70,7 +70,10 @@
                     <div class="bg-gray-50/50 rounded-2xl p-4 space-y-3">
                         @foreach($order->items as $item)
                             <div class="flex justify-between items-center text-xs">
-                                <span class="text-gray-600 font-medium">{{ $item->name }} <b class="text-gray-900 ml-1">x{{ $item->quantity }}</b></span>
+                                <span class="text-gray-600 font-medium">
+    {{ $item->food->name }} 
+    <b class="text-gray-900 ml-1">x{{ $item->quantity }}</b>
+</span>
                                 <span class="font-black text-gray-900">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
                             </div>
                         @endforeach

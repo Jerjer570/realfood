@@ -36,9 +36,13 @@
                     <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ $item->description }}</p>
                     <div class="flex items-center justify-between">
                         <span class="text-lg font-bold text-green-600">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-                        <button class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition-colors">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                       {{-- Bungkus dengan Form POST untuk mengirim ID makanan ke CartController --}}
+<form action="{{ route('cart.add', $item->id) }}" method="POST">
+    @csrf {{-- Wajib untuk keamanan Laravel --}}
+    <button type="submit" class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition-colors active:scale-90">
+        <i class="fas fa-plus"></i>
+    </button>
+</form>
                     </div>
                 </div>
             </div>
