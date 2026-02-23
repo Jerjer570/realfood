@@ -15,49 +15,58 @@ class FoodSeeder extends Seeder
         // Data menu yang akan dimasukkan ke database
         $menuItems = [
             [
-                'name' => 'Grilled Salmon Bowl',
-                'description' => 'Salmon panggang dengan sayuran segar dan quinoa',
+                'name' => 'Cooked Salad with Peanut Sauce',
+                'description' => 'Salad yang sudah direbus atau dikukus dengan saus kacang yang kaya rasa',
                 'price' => 85000,
                 'calories' => 450,
-                'image' => 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500',
-                'rating' => 4.8,
-                'category' => 'Bowls'
-            ],
-            [
-                'name' => 'Fresh Garden Salad',
-                'description' => 'Salad sayuran organik dengan dressing vinaigrette',
-                'price' => 45000,
-                'calories' => 280,
-                'image' => 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500',
-                'rating' => 4.6,
+                'image' => 'images/menu1.webp',
+                'rating' => 5.0,
                 'category' => 'Salads'
             ],
             [
-                'name' => 'Berry Smoothies',
-                'description' => 'Campuran buah berry segar yang kaya antioksidan',
-                'price' => 35000,
-                'calories' => 180,
-                'image' => 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500',
-                'rating' => 4.7,
-                'category' => 'Drinks'
+                'name' => 'Red Rice with Tempeh',
+                'description' => 'Nasi merah dengan tempeh yang dipotong kecil dan disajikan dengan sayuran segar',
+                'price' => 45000,
+                'calories' => 280,
+                'image' => 'images/menu2.webp',
+                'rating' => 4.6,
+                'category' => 'Main Course'
             ],
             [
-                'name' => 'Chicken Avocado Wrap',
-                'description' => 'Dada ayam grill dengan irisan alpukat mentega',
+                'name' => 'Vegetables Mix',
+                'description' => 'Sayur mayur campur yang segar dan kaya serat, cocok untuk diet sehat',
+                'price' => 35000,
+                'calories' => 180,
+                'image' => 'images/menu3.webp',
+                'rating' => 4.7,
+                'category' => 'Bowls'
+            ],
+            [
+                'name' => 'Salmon with Corn Rice',
+                'description' => 'Ikan salmon dengan nasi jagung yang lezat dan sehat',
                 'price' => 55000,
                 'calories' => 380,
-                'image' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500',
+                'image' => 'images/menu4.webp',
                 'rating' => 4.5,
                 'category' => 'Main Course'
             ],
             [
-                'name' => 'Detox Green Juice',
-                'description' => 'Ekstrak kale, apel hijau, dan lemon untuk detox',
+                'name' => 'Chicken Filled with Red Rice',
+                'description' => 'Dada ayam yang dipadukan dengan nasi merah dan sayuran segar',
                 'price' => 30000,
                 'calories' => 90,
-                'image' => 'https://images.unsplash.com/photo-1610970881699-44a55874c431?w=500',
-                'rating' => 4.9,
-                'category' => 'Drinks'
+                'image' => 'images/menu5.webp',
+                'rating' => 4.7,
+                'category' => 'Main Course'
+            ],
+             [
+                'name' => 'Boiled Egg with Oatmeal',
+                'description' => 'Telur rebus dengan oatmeal yang lezat dan sehat',
+                'price' => 25000,
+                'calories' => 120,
+                'image' => 'images/menu6.webp',
+                'rating' => 4.7,
+                'category' => 'Main Course'
             ]
         ];
 

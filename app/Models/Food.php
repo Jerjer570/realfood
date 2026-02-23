@@ -9,17 +9,15 @@ class Food extends Model
 {
     use HasFactory;
 
-    // Nama tabel di database (pastikan sesuai dengan migrasi Anda)
-    protected $table = 'foods'; 
+    protected $table = 'food'; // Memaksa Laravel menggunakan tabel 'food'
 
-    // Ini WAJIB ada agar seeder bisa memasukkan data
     protected $fillable = [
         'name',
         'description',
         'price',
         'image',
+        'category',
         'rating',
         'calories',
-        'category',
     ];
 }

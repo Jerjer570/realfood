@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf-token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <title>{{ $title ?? 'Admin Panel - Real Food' }}</title>
     
+    {{-- Fonts & Icons --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    {{-- Asset Management --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    {{-- Alpine.js --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
@@ -20,6 +24,7 @@
 </head>
 <body class="bg-gray-50" x-data="{ isSidebarOpen: false }">
 
+    {{-- Sidebar --}}
     <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 lg:translate-x-0 shadow-2xl lg:shadow-none"
            :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
            @click.away="isSidebarOpen = false">
@@ -40,6 +45,8 @@
                         ['route' => 'admin.orders.index', 'label' => 'Pesanan', 'icon' => 'fa-shopping-bag'],
                         ['route' => 'admin.users.index', 'label' => 'Pengguna', 'icon' => 'fa-users'],
                         ['route' => 'admin.analytics', 'label' => 'Analitik', 'icon' => 'fa-chart-line'],
+                        // MENU BARU DISINI
+                        ['route' => 'admin.financial.report', 'label' => 'Laporan Keuangan', 'icon' => 'fa-file-invoice-dollar'],
                     ];
                 @endphp
 
@@ -52,6 +59,7 @@
                 @endforeach
             </nav>
 
+            {{-- Logout Section --}}
             <div class="p-6 border-t border-gray-800 bg-gray-950/30">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -66,28 +74,33 @@
 
     <div class="lg:ml-64 min-h-screen flex flex-col">
         
+        {{-- Header --}}
         <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 h-20 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-40">
             <button @click="isSidebarOpen = true" class="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition">
                 <i class="fas fa-bars text-xl"></i>
             </button>
 
             <div class="flex items-center gap-5 ml-auto">
+                @auth
                 <div class="text-right hidden sm:block">
                     <p class="text-sm font-black text-gray-900 leading-none mb-1">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-green-600 font-black uppercase tracking-widest">Administrator</p>
+                    <p class="text-[10px] text-green-600 font-black uppercase tracking-widest">{{ Auth::user()->role ?? 'Administrator' }}</p>
                 </div>
                 <div class="relative group">
                     <div class="w-11 h-11 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 font-black border-2 border-white shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
                         {{ substr(Auth::user()->name, 0, 1) }}
                     </div>
                 </div>
+                @endauth
             </div>
         </header>
 
+        {{-- Main Content --}}
         <main class="p-6 lg:p-10 flex-1">
             @yield('content')
         </main>
         
+        {{-- Footer --}}
         <footer class="px-10 py-6 border-t border-gray-100 text-center lg:text-left">
             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
                 &copy; {{ date('Y') }} Real Food Control Panel • Built with Laravel
@@ -95,16 +108,13 @@
         </footer>
     </div>
 
+    {{-- Mobile Overlay --}}
     <div x-show="isSidebarOpen" 
          x-cloak
          @click="isSidebarOpen = false"
          class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
          x-transition:enter="transition opacity-0 duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition opacity-100 duration-300"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
+         x-transition:leave="transition opacity-100 duration-300">
     </div>
 
 </body>

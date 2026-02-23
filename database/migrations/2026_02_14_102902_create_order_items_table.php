@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             
             // 2. PERBAIKAN: Menghubungkan ke 'foods', bukan 'food'
-            $table->foreignId('food_id')->constrained('foods')->onDelete('cascade');
+            $table->foreignId('food_id')->constrained('food')->onDelete('cascade');
             
             $table->integer('quantity');
             

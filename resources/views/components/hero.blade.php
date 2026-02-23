@@ -23,7 +23,7 @@
                 <div class="aspect-square rounded-3xl overflow-hidden shadow-2xl">
                     {{-- Gunakan asset() jika gambar sudah kamu download ke public/images --}}
                     <img 
-                        src="https://images.unsplash.com/photo-1692384196114-746749434cd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFsdGh5JTIwZnJlc2glMjBmb29kJTIwYm93bHxlbnwxfHx8fDE3NzA4MDgyNzR8MA&ixlib=rb-4.1.0&q=80&w=1080" 
+                        src="{{ asset('images/poto1.jpeg') }}" 
                         alt="Fresh healthy food bowl" 
                         class="w-full h-full object-cover"
                     >
