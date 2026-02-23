@@ -21,5 +21,5 @@ class FoodController extends Controller
         return view('welcome', compact('menuItems'));
     }
 
-
 }
+

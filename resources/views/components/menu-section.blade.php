@@ -36,7 +36,7 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-            {{-- Loop data --}}
+
             @foreach($menuItems as $item)
             <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
                 <div class="relative aspect-square overflow-hidden">
@@ -57,9 +57,11 @@
                     <p class="text-gray-600 text-sm leading-relaxed">{{ $item->description }}</p>
                     <div class="flex items-center justify-between pt-2">
                         <span class="text-xl text-green-600 font-bold">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-                        <button class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-all transform active:scale-95 shadow-lg shadow-green-100 font-medium">
-                            Pesan
-                        </button>
+                        <a href="{{ route('menu') }}">
+    <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+        Pesan
+    </button>
+</a>
                     </div>
                 </div>
             </div>
