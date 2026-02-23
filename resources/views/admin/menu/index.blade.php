@@ -110,13 +110,14 @@
                                 <option value="Bowls">Bowls</option>
                                 <option value="Salads">Salads</option>
                                 <option value="Drinks">Drinks</option>
+                                <option value="Drinks">Main Course</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">URL Gambar</label>
-                        <input type="url" name="image" x-model="editingItem ? editingItem.image : ''" required 
+                        <input type="text" name="image" x-model="editingItem ? editingItem.image : ''" required 
                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none">
                     </div>
 
