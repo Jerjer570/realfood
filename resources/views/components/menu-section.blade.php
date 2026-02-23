@@ -1,5 +1,5 @@
 @php
-    // Pindahkan data dari komentar ke sini agar menjadi variabel aktif
+    // Data didefinisikan langsung di sini (Hardcode)
     $menuItems = [
         (object)[
             'name' => 'Grilled Salmon Bowl',
@@ -36,15 +36,11 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-<<<<<<< HEAD
-            {{-- Baris 11 sekarang akan berfungsi karena $menuItems sudah ada di atas --}}
-=======
-            
-
->>>>>>> 41a5e4cc35fde4948e3f89b317758a08d6fad597
+            {{-- Loop data --}}
             @foreach($menuItems as $item)
             <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
                 <div class="relative aspect-square overflow-hidden">
+                    {{-- Pastikan gambar ada di public/images/ --}}
                     <img src="{{ $item->image }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
                         {{ $item->calories }}
@@ -71,32 +67,3 @@
         </div>
     </div>
 </section>
-
-{{--
-    $menuItems = [
-                    [
-                        'name' => 'Grilled Salmon Bowl',
-                        'description' => 'Salmon panggang dengan sayuran segar dan quinoa',
-                        'price' => 'Rp 85.000',
-                        'rating' => 4.8,
-                        'calories' => '450 kal',
-                        'image' => 'images/poto2.jpeg'
-                    ],
-                    [
-                        'name' => 'Fresh Garden Salad',
-                        'description' => 'Salad sayuran organik dengan dressing vinaigrette',
-                        'price' => 'Rp 45.000',
-                        'rating' => 4.7,
-                        'calories' => '280 kal',
-                        'image' => 'images/poto3.jpeg'
-                    ],
-                    [
-                        'name' => 'Açaí Berry Bowl',
-                        'description' => 'Smoothie bowl dengan topping buah segar dan granola',
-                        'price' => 'Rp 55.000',
-                        'rating' => 4.9,
-                        'calories' => '320 kal',
-                        'image' => 'images/poto7.webp'
-                    ]
-                ];
---}}

@@ -20,7 +20,7 @@
         <main>
             <x-hero />
 
-            <x-menu-section :menuItems="$menuItems"/>
+            <x-menu-section />
 
             <x-about />
         </main>
