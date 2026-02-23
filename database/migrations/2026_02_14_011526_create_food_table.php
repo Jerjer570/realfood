@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Gunakan nama 'foods' agar otomatis terbaca oleh Model Food
-        Schema::create('foods', function (Blueprint $table) {
+        Schema::create('food', function (Blueprint $table) {
             $table->id(); 
             $table->string('name'); 
             $table->text('description'); 
