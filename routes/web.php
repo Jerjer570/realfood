@@ -75,6 +75,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Dashboard & Analytics
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
+
+    // --- PENAMBAHAN ROUTE LAPORAN KEUANGAN ---
+    Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
     
     // --- PENAMBAHAN ROUTE LAPORAN KEUANGAN ---
     Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
