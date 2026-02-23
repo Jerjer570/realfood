@@ -87,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
 
+
 Route::middleware(['auth'])->group(function () {
     // Route untuk tombol tambah keranjang
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');

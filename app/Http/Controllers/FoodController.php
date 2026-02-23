@@ -22,3 +22,4 @@ class FoodController extends Controller
     }
 
 }
+
