@@ -98,10 +98,8 @@ class CartController extends Controller
 
 public function checkout()
 {
-    // Ambil data keranjang user yang sedang login
     $cartItems = Cart::with('food')->where('user_id', Auth::id())->get();
-    
-    // Jika kosong, kirim kembali ke menu dengan pesan peringatan
+
     if ($cartItems->isEmpty()) {
         return redirect()->route('menu')->with('error', 'Keranjang belanja Anda masih kosong.');
     }

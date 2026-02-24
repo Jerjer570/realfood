@@ -6,48 +6,25 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\ProsesController;
 use App\Http\Controllers\ServiceController; // Tambahkan ini
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
 
-// Home - Menampilkan Top Rating
+
+//food beranda dan menu
 Route::get('/', [FoodController::class, 'topRating'])->name('home');
-
-// Halaman Pelajari Selengkapnya
-Route::get('/pelajari-selengkapnya', function () {
-    return view('pages.pelajari_selengkapnya'); 
-})->name('about.detail');
-
-// Route Menu Utama
-Route::get('/menu', function () {
-    $menuItems = \App\Models\Food::all(); 
-    return view('pages.menu', compact('menuItems'));
-})->name('menu');
+Route::get('/menu', [FoodController::class, 'daftarMenu'])->name('menu');
 
 // Detail Proses
+Route::get('/pelajari-selengkapnya', [ProsesController::class, 'selengkapnya'])->name('about.detail');
 Route::prefix('proses')->name('proses.')->group(function () {
-    Route::get('/bahan-baku', function () {
-        return view('pages.proses.bahan');
-    })->name('bahan');
-
-    Route::get('/pemilihan-benih', function () {
-        return view('pages.proses.benih');
-    })->name('benih');
-
-    Route::get('/higienis', function () {
-        return view('pages.proses.higienis');
-    })->name('higienis');
-
-    Route::get('/pengiriman', function () {
-        return view('pages.proses.pengiriman');
-    })->name('pengiriman');
+    Route::get('/bahan-baku', [ProsesController::class, 'bahan'])->name('bahan');
+    Route::get('/pemilihan-benih', [ProsesController::class, 'benih'])->name('benih');
+    Route::get('/higienis', [ProsesController::class, 'higienis'])->name('higienis');
+    Route::get('/pengiriman', [ProsesController::class, 'pengiriman'])->name('pengiriman');
 });
 
-// Halaman Layanan
+// Halaman Service
 Route::prefix('services')->name('services.')->group(function () {
     Route::get('/delivery', [ServiceController::class, 'delivery'])->name('delivery');
     Route::get('/catering', [ServiceController::class, 'catering'])->name('catering');
@@ -55,11 +32,7 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::get('/gift-card', [ServiceController::class, 'giftCard'])->name('gift-card');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Guest Routes (Hanya untuk yang BELUM Login)
-|--------------------------------------------------------------------------
-*/
+//auth
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -67,13 +40,8 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated Routes (Harus Login)
-|--------------------------------------------------------------------------
-*/
+//user
 Route::middleware(['auth'])->group(function () {
-    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Keranjang Belanja
@@ -102,11 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [UserController::class, 'orderHistory'])->name('orders');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
+
+//admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
