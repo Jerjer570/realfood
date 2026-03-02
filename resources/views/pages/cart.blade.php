@@ -4,7 +4,7 @@
 <div class="pt-24 pb-16 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto px-4">
         <h1 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-            <i class="fas fa-shopping-cart text-green-600"></i>
+            <i class="fas fa-shopping-keranjang text-green-600"></i>
             Keranjang Belanja
         </h1>
 
@@ -25,7 +25,7 @@
                 <div class="lg:col-span-2 space-y-4">
                     @foreach($cartItems as $item)
                         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                            <img src="{{ $item->food->image }}" alt="{{ $item->food->name }}" class="w-24 h-24 object-cover rounded-xl">
+                            <img src="{{ asset('images/' . $item->food->image) }}" alt="{{ $item->food->name }}" class="w-24 h-24 object-cover rounded-xl">
                             
                             <div class="flex-1">
                                 <h3 class="font-bold text-gray-900">{{ $item->food->name }}</h3>
@@ -33,7 +33,7 @@
                             </div>
 
                             <div class="flex items-center gap-3 bg-gray-50 px-3 py-1 rounded-full">
-                                <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                <form action="{{ route('keranjang.update', $item->id) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="change" value="-1">
@@ -42,7 +42,7 @@
                                 
                                 <span class="font-bold w-4 text-center">{{ $item->quantity }}</span>
                                 
-                                <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                <form action="{{ route('keranjang.update', $item->id) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="change" value="1">
@@ -50,7 +50,7 @@
                                 </form>
                             </div>
 
-                            <form action="{{ route('cart.destroy', $item->id) }}" method="POST">
+                            <form action="{{ route('keranjang.destroy', $item->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button class="text-red-400 hover:text-red-600 p-2">

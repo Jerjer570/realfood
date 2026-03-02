@@ -5,19 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Food;
+use App\Models\menu;
 
 
-class FoodController extends Controller
+class menuController extends Controller
 {
 
     public function daftarMenu(){
-        $menuItems = \App\Models\Food::all(); 
+        $menuItems = menu::all(); 
         return view('pages.menu', compact('menuItems'));
     }
 
     public function topRating(){
-        $menuItems = Food::orderBy('rating','desc')->take(3)->get();
+        $menuItems = menu::orderBy('rating','desc')->take(3)->get();
         return view('welcome', compact('menuItems'));
     }
 

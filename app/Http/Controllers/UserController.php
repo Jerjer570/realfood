@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Order;
+use App\Models\pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,15 +29,15 @@ class UserController extends Controller
         $user = User::find(Auth::id());
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
+            'nama' => 'required|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
         ]);
 
         $user->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address' => $request->address,
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
         ]);
 
         return back()->with('success', 'Profil berhasil diperbarui!');
@@ -49,8 +49,8 @@ class UserController extends Controller
     public function orderHistory()
     {
         // Mengambil pesanan milik user, diurutkan dari yang terbaru
-        $orders = Order::where('user_id', Auth::id())
-            ->with('items') // Pastikan ada relasi 'items' di model Order
+        $orders = pesanan::where('id_user', Auth::id())
+            ->with('keranjangg') // Pastikan ada relasi 'items' di model pesanan
             ->latest()
             ->get();
 
