@@ -11,22 +11,38 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 1. Membuat Tabel Users (dengan kolom role yang digabung)
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('user'); // Gabungan dari migrasi kedua
             $table->rememberToken();
             $table->timestamps();
         });
 
+        // 2. Membuat Tabel Food
+        Schema::create('food', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description');
+            $table->string('price');
+            $table->string('calories');
+            $table->string('image');
+            $table->float('rating')->default(4.5);
+            $table->timestamps();
+        });
+
+        // 3. Membuat Tabel Password Reset Tokens
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
+        // 4. Membuat Tabel Sessions
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -43,6 +59,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('food');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
