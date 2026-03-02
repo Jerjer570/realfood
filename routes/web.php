@@ -42,6 +42,7 @@ Route::middleware(['guest'])->group(function () {
 
 //user
 Route::middleware(['auth'])->group(function () {
+    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Keranjang Belanja
@@ -92,6 +93,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{id}', [AdminController::class, 'orderUpdate'])->name('update');
     });
 
-    // Kelola Pengguna Admin
-    Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
+   // SEBELUMNYA:
+// Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
+
+// SESUDAH (Ganti menjadi ini):
+Route::get('/users', [UserController::class, 'listUsers'])->name('users.index');
 });

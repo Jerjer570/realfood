@@ -9,25 +9,32 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    /**
-     * Menampilkan halaman profil user (Berdasarkan ProfilePage.tsx)
-     */
+    // Method untuk menampilkan 10 baris data per halaman (Paginasi)
+    public function listUsers(Request $request)
+    {
+        $roleFilter = $request->query('role', 'all');
+        $query = User::query();
+
+        if ($roleFilter !== 'all') {
+            $query->where('role', $roleFilter);
+        }
+
+        // Ini kunci agar ->total() tidak error
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        return view('admin.users.index', compact('users'));
+    }
+
     public function index()
     {
         $user = Auth::user();
-        // Mengambil sesi aktif (jika kamu ingin fitur 'Device Ini' seperti di React)
         $sessions = []; 
-
         return view('pages.profile', compact('user', 'sessions'));
     }
 
-    /**
-     * Memperbarui data profil (Nama, Telepon, Alamat)
-     */
     public function update(Request $request)
     {
-        $user = User::find(Auth::id());
-
+        $user = Auth::user();
         $request->validate([
             'nama' => 'required|string|max:255',
             'no_hp' => 'nullable|string|max:20',
@@ -43,14 +50,10 @@ class UserController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
 
-    /**
-     * Menampilkan riwayat pesanan (Berdasarkan OrderHistoryPage.tsx)
-     */
     public function orderHistory()
     {
-        // Mengambil pesanan milik user, diurutkan dari yang terbaru
         $orders = pesanan::where('id_user', Auth::id())
-            ->with('keranjangg') // Pastikan ada relasi 'items' di model pesanan
+            ->with('keranjangg') 
             ->latest()
             ->get();
 
