@@ -51,4 +51,6 @@ class User extends Authenticatable // Sebaiknya extends Authenticatable untuk fi
     public function keranjangg() {
         return $this->hasMany(Keranjang::class, 'id_user');
     }
+
 }
+
