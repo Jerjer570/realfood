@@ -10,9 +10,9 @@ use App\Models\Food;
 
 class FoodController extends Controller
 {
-    public function daftarMenu()
-    {
-        $menuItems = Food::latest()->get();
+
+    public function daftarMenu(){
+        $menuItems = \App\Models\Food::all(); 
         return view('pages.menu', compact('menuItems'));
     }
 

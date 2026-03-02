@@ -88,7 +88,6 @@
         </div>
     </div>
 </div>
-                           
 
                 {{-- Bagian Kanan: Ringkasan --}}
                 <div class="lg:col-span-1">

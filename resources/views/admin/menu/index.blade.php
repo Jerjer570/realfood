@@ -124,6 +124,7 @@
                         </div>
                     </div>
 
+
                     {{-- Rating & Kalori --}}
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
@@ -140,6 +141,7 @@
                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none" 
                                    placeholder="Contoh: 350">
                         </div>
+
                     </div>
 
                     {{-- Upload Gambar --}}

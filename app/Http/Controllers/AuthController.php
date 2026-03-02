@@ -28,10 +28,10 @@ class AuthController extends Controller
 
             // Redirect berdasarkan role
             if (Auth::user()->role === 'admin') {
-                return redirect()->route('admin.analytics');
+                return redirect()->route('admin.dashboard');
             }
             
-            return redirect()->intended('/');
+            return redirect()->intended('/menu');
         }
 
         return back()->withErrors([
@@ -69,7 +69,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Akun berhasil dibuat!');
+        return redirect('/menu')->with('success', 'Akun berhasil dibuat!');
     }
 
     // --- LOGOUT ---

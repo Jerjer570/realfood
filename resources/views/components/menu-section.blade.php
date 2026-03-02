@@ -1,33 +1,3 @@
-@php
-    // Data didefinisikan langsung di sini (Hardcode)
-    $menuItems = [
-        (object)[
-            'name' => 'Grilled Salmon Bowl',
-            'description' => 'Salmon panggang dengan sayuran segar dan quinoa',
-            'price' => 85000,
-            'rating' => 4.8,
-            'calories' => '450 kal',
-            'image' => asset('images/poto2.jpeg')
-        ],
-        (object)[
-            'name' => 'Fresh Garden Salad',
-            'description' => 'Salad sayuran organik dengan dressing vinaigrette',
-            'price' => 45000,
-            'rating' => 4.7,
-            'calories' => '280 kal',
-            'image' => asset('images/poto3.jpeg')
-        ],
-        (object)[
-            'name' => 'Açaí Berry Bowl',
-            'description' => 'Smoothie bowl dengan topping buah segar dan granola',
-            'price' => 55000,
-            'rating' => 4.9,
-            'calories' => '320 kal',
-            'image' => asset('images/poto7.webp')
-        ]
-    ];
-@endphp
-
 <section id="menu" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
@@ -40,8 +10,7 @@
             @foreach($menuItems as $item)
             <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
                 <div class="relative aspect-square overflow-hidden">
-                    {{-- Pastikan gambar ada di public/images/ --}}
-                    <img src="{{ $item->image }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                    <img src="{{ asset('images/' . $item->image) }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
                         {{ $item->calories }}
                     </div>
