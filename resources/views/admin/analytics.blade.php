@@ -23,7 +23,7 @@
                             {{ $loop->iteration }}
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">{{ $item->name }}</p>
+                            <p class="font-black text-gray-900">{{ $item->nama }}</p>
                             <p class="text-xs text-gray-500">{{ $item->count }} Terjual</p>
                         </div>
                     </div>

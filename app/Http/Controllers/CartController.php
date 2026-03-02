@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cart;
-use App\Models\Food;
-use App\Models\Order;
-use App\Models\OrderItem; 
+use App\Models\keranjang;
+use App\Models\menu;
+use App\Models\pesanan;
+use App\Models\detail_pesanan; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +17,12 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cartItems = Cart::with('food')
-            ->where('user_id', Auth::id())
+        $cartItems = keranjang::with('menu')
+            ->where('id_user', Auth::id())
             ->get();
 
         $subtotal = $cartItems->sum(function($item) {
-            return $item->food->price * $item->quantity;
+            return $item->menu->harga * $item->kuantitas;
         });
 
         $shipping = 10000;
@@ -40,28 +40,28 @@ class CartController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $food = Food::findOrFail($id);
+        $food = menu::findOrFail($id);
         
         // Cek apakah produk sudah ada di keranjang user
-        $cartItem = Cart::where('user_id', Auth::id())
-                        ->where('food_id', $id)
+        $cartItem = keranjang::where('id_user', Auth::id())
+                        ->where('id_menu', $id)
                         ->first();
 
         if ($cartItem) {
             // Jika sudah ada, cukup tambahkan jumlahnya
             $cartItem->update([
-                'quantity' => $cartItem->quantity + 1
+                'kuantitas' => $cartItem->kuantitas + 1
             ]);
         } else {
             // Jika belum ada, buat baris baru di tabel carts
-            Cart::create([
-                'user_id' => Auth::id(),
-                'food_id' => $id,
-                'quantity' => 1
+            keranjang::create([
+                'id_user' => Auth::id(),
+                'id_menu' => $id,
+                'kuantitas' => 1
             ]);
         }
 
-        return back()->with('success', $food->name . ' berhasil ditambah ke keranjang!');
+        return back()->with('success', $menu->nama_menu . ' berhasil ditambah ke keranjang!');
     }
 
     /**
@@ -69,12 +69,12 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $cart = Cart::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $cart = keranjang::where('id_keranjang', $id)->where('id_user', Auth::id())->firstOrFail();
         
-        $newQuantity = $cart->quantity + $request->change;
+        $newQuantity = $keranjang->kuantitas + $request->change;
         
         if ($newQuantity > 0) {
-            $cart->update(['quantity' => $newQuantity]);
+            $cart->update(['kuantitas' => $newQuantity]);
         } else {
             $cart->delete();
         }
@@ -87,7 +87,7 @@ class CartController extends Controller
      */
     public function destroy($id)
     {
-        Cart::where('id', $id)->where('user_id', Auth::id())->delete();
+        keranjang::where('id_keranjang', $id)->where('id_user', Auth::id())->delete();
         return back()->with('success', 'Item berhasil dihapus');
     }
 
@@ -98,14 +98,14 @@ class CartController extends Controller
 
 public function checkout()
 {
-    $cartItems = Cart::with('food')->where('user_id', Auth::id())->get();
+    $cartItems = keranjang::with('menu')->where('id_user', Auth::id())->get();
 
     if ($cartItems->isEmpty()) {
         return redirect()->route('menu')->with('error', 'Keranjang belanja Anda masih kosong.');
     }
 
     $subtotal = $cartItems->sum(function($item) {
-        return $item->food->price * $item->quantity;
+        return $item->menu->harga * $item->kuantitas;
     });
 
     $shipping = 10000;
@@ -120,45 +120,45 @@ public function checkout()
     public function processOrder(Request $request)
     {
         $request->validate([
-            'address' => 'required|string',
-            'phone' => 'required|string',
-            'payment_method' => 'required'
+            'alamat' => 'required|string',
+            'no_hp' => 'required|string',
+            'metode_pembayaran' => 'required'
         ]);
 
-        $cartItems = Cart::with('food')->where('user_id', Auth::id())->get();
+        $cartItems = keranjang::with('menu')->where('id_user', Auth::id())->get();
         
         if ($cartItems->isEmpty()) {
             return redirect()->route('menu')->with('error', 'Keranjang sudah kosong');
         }
 
         $subtotal = $cartItems->sum(function($item) {
-            return $item->food->price * $item->quantity;
+            return $item->menu->harga * $item->kuantitas;
         });
 
         // Database Transaction untuk keamanan data
         DB::transaction(function () use ($request, $cartItems, $subtotal) {
-            // 1. Buat Data Order Utama
-            $order = Order::create([
-                'user_id' => Auth::id(),
+            // 1. Buat Data pesanan Utama
+            $pesanan = pesanan::create([
+                'id_user' => Auth::id(),
                 'total' => $subtotal + 10000,
-                'deliveryAddress' => $request->address,
-                'phone' => $request->phone,
+                'alamat' => $request->alamat,
+                'no_hp' => $request->no_hp,
                 'status' => 'pending',
-                'payment_method' => $request->payment_method
+                'metode_pembayaran' => $request->metode_pembayaran
             ]);
 
             // 2. Simpan Detail Makanan ke OrderItems
             foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'food_id'  => $item->food_id,
-                    'quantity' => $item->quantity,
-                    'price'    => $item->food->price
+                detail_pesanan::create([
+                    'id_order' => $pesanan->id,
+                    'id_menu'  => $item->id_menu,
+                    'kuantitas' => $item->kuantitas,
+                    'harga'    => $item->menu->harga
                 ]);
             }
 
             // 3. Kosongkan Keranjang User
-            Cart::where('user_id', Auth::id())->delete();
+            keranjang::where('id_user', Auth::id())->delete();
         });
 
         return redirect()->route('orders')->with('success', 'Pesanan berhasil dibuat!');

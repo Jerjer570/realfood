@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
+use App\Models\pesanan;
 use App\Models\User;
-use App\Models\Food;
+use App\Models\menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -19,15 +19,15 @@ class AdminController extends Controller
     {
         $stats = [
             'totalUsers' => User::where('role', 'user')->count(),
-            'totalMenuItems' => Food::count(),
-            'totalOrders' => Order::count(),
-            'totalRevenue' => Order::where('status', 'completed')->sum('total'),
-            'pendingOrders' => Order::where('status', 'pending')->count(),
-            'processingOrders' => Order::where('status', 'processing')->count(),
-            'completedOrders' => Order::where('status', 'completed')->count(),
+            'totalMenuItems' => menu::count(),
+            'totalOrders' => pesanan::count(),
+            'totalRevenue' => pesanan::where('status', 'completed')->sum('subtotal'),
+            'pendingOrders' => pesanan::where('status', 'pending')->count(),
+            'processingOrders' => pesanan::where('status', 'processing')->count(),
+            'completedOrders' => pesanan::where('status', 'completed')->count(),
         ];
 
-        $recentOrders = Order::with('user')->latest()->take(5)->get();
+        $recentOrders = pesanan::with('userr')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recentOrders'));
     }
@@ -37,21 +37,21 @@ class AdminController extends Controller
      */
     public function analytics()
     {
-        $totalOrders = Order::count();
+        $totalOrders = pesanan::count();
         $totalCustomers = User::where('role', 'user')->count();
-        $completedOrders = Order::where('status', 'completed')->get();
+        $completedOrders = pesanan::where('status', 'completed')->get();
         $totalRevenue = $completedOrders->sum('total');
         
         $averageOrderValue = $completedOrders->count() > 0 
             ? $totalRevenue / $completedOrders->count() 
             : 0;
 
-        $topItems = DB::table('order_items')
-            ->join('food', 'order_items.food_id', '=', 'food.id')
-            ->select('food.name', 
-                     DB::raw('SUM(order_items.quantity) as count'), 
-                     DB::raw('SUM(order_items.quantity * order_items.price) as revenue'))
-            ->groupBy('food.name', 'food.id')
+        $topItems = DB::table('detail_pesanan')
+            ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
+            ->select('menu.nama_menu', 
+                     DB::raw('SUM(detail_pesanan.kuantitas) as count'), 
+                     DB::raw('SUM(detail_pesanan.kuantitas * detail_pesanan.harga) as revenue'))
+            ->groupBy('menu.nama_menu', 'menu.id_menu')
             ->orderByDesc('count')
             ->take(5)
             ->get();
@@ -70,9 +70,9 @@ class AdminController extends Controller
      */
     public function financialReport()
     {
-        $completedOrders = Order::where('status', 'completed')->get();
-        $totalRevenue = $completedOrders->sum('total');
-        $totalOrders = Order::count();
+        $completedOrders = pesanan::where('status', 'completed')->get();
+        $totalRevenue = $completedOrders->sum('subtotal');
+        $totalOrders = pesanan::count();
         $totalCustomers = User::where('role', 'user')->count();
         
         $averageOrderValue = $completedOrders->count() > 0 
@@ -92,37 +92,37 @@ class AdminController extends Controller
      */
     public function menuIndex()
     {
-        $menuItems = Food::latest()->get();
+        $menuItems = menu::latest()->get();
         return view('admin.menu.index', compact('menuItems'));
     }
 
     public function menuStore(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'category' => 'required|string',
+            'nama_menu' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'harga' => 'required|numeric',
+            'gambar' => 'required|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'kategori' => 'required|string',
             'rating' => 'nullable|numeric|min:0|max:5', // Tambahan validasi rating
-            'calories' => 'nullable|numeric',           // Tambahan validasi kalori
+            'kalori' => 'nullable|numeric',           // Tambahan validasi kalori
         ]);
 
         $imageName = null;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
+        if ($request->hasFile('gambar')) {
+            $image = $request->file('gambar');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
         }
 
-        Food::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'image' => $imageName,
-            'category' => $request->category,
+        menu::create([
+            'nama_menu' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'harga' => $request->harga,
+            'gambar' => $imageName,
+            'kategori' => $request->kategori,
             'rating' => $request->rating ?? 0,    // Simpan rating
-            'calories' => $request->calories ?? 0, // Simpan kalori
+            'kalori' => $request->kalori ?? 0, // Simpan kalori
         ]);
 
         return redirect()->back()->with('success', 'Menu berhasil ditambahkan!');
@@ -131,45 +131,45 @@ class AdminController extends Controller
     public function menuUpdate(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'category' => 'required|string',
+            'nama_menu' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'harga' => 'required|numeric',
+            'gambar' => 'nullable|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'kategori' => 'required|string',
             'rating' => 'nullable|numeric|min:0|max:5',
-            'calories' => 'nullable|numeric',
+            'kalori' => 'nullable|numeric',
         ]);
 
-        $food = Food::findOrFail($id);
-        $data = $request->except('image'); // Ambil semua data kecuali gambar dulu
+        $menu = menu::findOrFail($id);
+        $data = $request->except('gambar'); // Ambil semua data kecuali gambar dulu
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('gambar')) {
             // Hapus gambar lama dari folder
-            if ($food->image && File::exists(public_path('images/' . $food->image))) {
-                File::delete(public_path('images/' . $food->image));
+            if ($menu->gambar && File::exists(public_path('images/' . $menu->gambar))) {
+                File::delete(public_path('images/' . $menu->gambar));
             }
 
-            $image = $request->file('image');
+            $image = $request->file('gambar');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
-            $data['image'] = $imageName;
+            $data['gambar'] = $imageName;
         }
 
-        $food->update($data);
+        $menu->update($data);
 
         return redirect()->back()->with('success', 'Menu berhasil diperbarui!');
     }
 
     public function menuDestroy($id)
     {
-        $food = Food::findOrFail($id);
+        $menu = menu::findOrFail($id);
 
         // Hapus file gambar dari folder public/images sebelum menghapus data
-        if ($food->image && File::exists(public_path('images/' . $food->image))) {
-            File::delete(public_path('images/' . $food->image));
+        if ($menu->gambar && File::exists(public_path('images/' . $menu->gambar))) {
+            File::delete(public_path('images/' . $menu->gambar));
         }
 
-        $food->delete();
+        $menu->delete();
 
         return redirect()->back()->with('success', 'Menu berhasil dihapus!');
     }
@@ -180,7 +180,7 @@ class AdminController extends Controller
     public function ordersIndex(Request $request)
     {
         $status = $request->query('status', 'all');
-        $query = Order::with(['user', 'items.food'])->latest();
+        $query = pesanan::with(['user', 'keranjangg.menu'])->latest();
 
         if ($status !== 'all') {
             $query->where('status', $status);
@@ -196,8 +196,8 @@ class AdminController extends Controller
             'status' => 'required|in:pending,processing,completed,cancelled'
         ]);
 
-        $order = Order::findOrFail($id);
-        $order->update(['status' => $request->status]);
+        $pesanan = pesanan::findOrFail($id);
+        $pesanan->update(['status' => $request->status]);
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }
