@@ -11,11 +11,9 @@ use App\Http\Controllers\ServiceController;
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes (Bisa diakses tanpa login)
+| Public Routes
 |--------------------------------------------------------------------------
 */
-
-// Food: Beranda dan Katalog Menu
 Route::get('/', [FoodController::class, 'topRating'])->name('home');
 Route::get('/menu', [FoodController::class, 'daftarMenu'])->name('menu');
 
@@ -28,17 +26,9 @@ Route::prefix('proses')->name('proses.')->group(function () {
     Route::get('/pengiriman', [ProsesController::class, 'pengiriman'])->name('pengiriman');
 });
 
-// Halaman Layanan (Services)
-Route::prefix('services')->name('services.')->group(function () {
-    Route::get('/delivery', [ServiceController::class, 'delivery'])->name('delivery');
-    Route::get('/catering', [ServiceController::class, 'catering'])->name('catering');
-    Route::get('/meal-plan', [ServiceController::class, 'mealPlan'])->name('meal-plan');
-    Route::get('/gift-card', [ServiceController::class, 'giftCard'])->name('gift-card');
-});
-
 /*
 |--------------------------------------------------------------------------
-| Guest Routes (Hanya untuk user yang BELUM login)
+| Guest Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['guest'])->group(function () {
@@ -50,7 +40,7 @@ Route::middleware(['guest'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes (Harus Login)
+| Authenticated Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
@@ -60,49 +50,44 @@ Route::middleware(['auth'])->group(function () {
     // Keranjang Belanja
     Route::prefix('cart')->name('cart.')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('index');
+        // PASTIKAN AKSES LEWAT FORM POST, BUKAN URL BROWSER
         Route::post('/add/{id}', [CartController::class, 'addToCart'])->name('add');
-        Route::patch('/{id}', [CartController::class, 'update'])->name('update');
-        Route::delete('/{id}', [CartController::class, 'destroy'])->name('destroy');
+        Route::patch('/update/{id}', [CartController::class, 'update'])->name('update');
+        Route::delete('/destroy/{id}', [CartController::class, 'destroy'])->name('destroy');
     });
 
     // Checkout
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
 
-    // Profil & Riwayat User
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::put('/update', [UserController::class, 'update'])->name('update');
-    });
-    
+    // Riwayat Pesanan User (Sesuai perbaikan tampilan Bahasa Indonesia)
     Route::get('/orders', [UserController::class, 'orderHistory'])->name('orders');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes (Harus Login & Role Admin)
+| Admin Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
+    
+    // Route Financial Report yang sempat error "Undefined Method"
     Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
     
     // Kelola Menu Admin
     Route::prefix('menu')->name('menu.')->group(function () {
         Route::get('/', [AdminController::class, 'menuIndex'])->name('index'); 
         Route::post('/store', [AdminController::class, 'menuStore'])->name('store');
-        Route::put('/{id}', [AdminController::class, 'menuUpdate'])->name('update');
-        Route::delete('/{id}', [AdminController::class, 'menuDestroy'])->name('destroy');
+        Route::put('/update/{id}', [AdminController::class, 'menuUpdate'])->name('update');
+        Route::delete('/destroy/{id}', [AdminController::class, 'menuDestroy'])->name('destroy');
     });
 
-    // Kelola Pesanan Admin
+    // Kelola Pesanan Admin (Status Bahasa Indonesia)
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminController::class, 'ordersIndex'])->name('index'); 
-        Route::put('/{id}', [AdminController::class, 'orderUpdate'])->name('update');
+        Route::put('/update/{id}', [AdminController::class, 'orderUpdate'])->name('update');
     });
-
-    // Kelola User
-    Route::get('/users', [UserController::class, 'listUsers'])->name('users.index');
 });

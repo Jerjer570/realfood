@@ -15,7 +15,13 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-3xl font-black text-gray-900 tracking-tight italic">Kelola Menu</h1>
-                <p class="text-gray-500 text-sm mt-1">Menampilkan <span class="font-bold text-green-600">{{ $menuItems->count() }}</span> menu dari total <span class="font-bold">{{ $menuItems->total() }}</span>.</p>
+                {{-- PERBAIKAN BARIS 18: Menggunakan method_exists agar tidak error saat tidak pakai pagination --}}
+                <p class="text-gray-500 text-sm mt-1">
+                    Menampilkan <span class="font-bold text-green-600">{{ $menuItems->count() }}</span> menu 
+                    @if(method_exists($menuItems, 'total'))
+                        dari total <span class="font-bold">{{ $menuItems->total() }}</span>.
+                    @endif
+                </p>
             </div>
             <button @click="isModalOpen = true; editingItem = null" 
                     class="bg-green-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-green-700 transition-all flex items-center gap-2 shadow-lg shadow-green-100 active:scale-95">
@@ -72,12 +78,14 @@
             @endforelse
         </div>
 
-        {{-- BAGIAN PAGINATION (TAMBAHKAN INI) --}}
-        <div class="mt-12">
-            {{ $menuItems->links() }}
-        </div>
+        {{-- BAGIAN PAGINATION --}}
+        @if(method_exists($menuItems, 'links'))
+            <div class="mt-12">
+                {{ $menuItems->links() }}
+            </div>
+        @endif
 
-        {{-- Modal Alpine.js --}}
+        {{-- Modal Alpine.js (Form Tambah/Edit) --}}
         <div x-show="isModalOpen" 
              style="display: none;"
              class="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"

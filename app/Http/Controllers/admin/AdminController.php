@@ -21,13 +21,14 @@ class AdminController extends Controller
             'totalUsers' => User::where('role', 'user')->count(),
             'totalMenuItems' => menu::count(),
             'totalOrders' => pesanan::count(),
-            'totalRevenue' => pesanan::where('status', 'completed')->sum('subtotal'),
+            'totalRevenue' => pesanan::where('status', 'completed')->sum('subtotal') ?? 0,
             'pendingOrders' => pesanan::where('status', 'pending')->count(),
-            'processingOrders' => pesanan::where('status', 'processing')->count(),
+            'processingOrders' => pesanan::where('status', 'dimasak')->orWhere('status', 'dikemas')->count(),
             'completedOrders' => pesanan::where('status', 'completed')->count(),
         ];
 
-        $recentOrders = pesanan::with('userr')->latest()->take(5)->get();
+        // Memastikan relasi 'user' sesuai dengan yang ada di model Pesanan
+        $recentOrders = pesanan::with('user')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recentOrders'));
     }
@@ -40,18 +41,19 @@ class AdminController extends Controller
         $totalOrders = pesanan::count();
         $totalCustomers = User::where('role', 'user')->count();
         $completedOrders = pesanan::where('status', 'completed')->get();
-        $totalRevenue = $completedOrders->sum('total');
+        $totalRevenue = $completedOrders->sum('subtotal');
         
         $averageOrderValue = $completedOrders->count() > 0 
             ? $totalRevenue / $completedOrders->count() 
             : 0;
 
+        // PERBAIKAN: Join ke tabel menu untuk mengambil harga karena detail_pesanan tidak punya kolom harga
         $topItems = DB::table('detail_pesanan')
             ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
             ->select('menu.nama_menu', 
                      DB::raw('SUM(detail_pesanan.kuantitas) as count'), 
-                     DB::raw('SUM(detail_pesanan.kuantitas * detail_pesanan.harga) as revenue'))
-            ->groupBy('menu.nama_menu', 'menu.id_menu')
+                     DB::raw('SUM(detail_pesanan.kuantitas * menu.harga) as revenue'))
+            ->groupBy('menu.nama_menu', 'menu.id_menu', 'menu.harga')
             ->orderByDesc('count')
             ->take(5)
             ->get();
@@ -92,7 +94,8 @@ class AdminController extends Controller
      */
     public function menuIndex()
     {
-        $menuItems = menu::latest()->get();
+        // Menggunakan paginate agar sinkron dengan baris {{ $menuItems->links() }} di Blade
+        $menuItems = menu::latest()->paginate(10); 
         return view('admin.menu.index', compact('menuItems'));
     }
 
@@ -101,28 +104,28 @@ class AdminController extends Controller
         $request->validate([
             'nama_menu' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'harga' => 'required|numeric',
-            'gambar' => 'required|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
-            'kategori' => 'required|string',
-            'rating' => 'nullable|numeric|min:0|max:5', // Tambahan validasi rating
-            'kalori' => 'nullable|numeric',           // Tambahan validasi kalori
+            'harga'     => 'required|numeric',
+            'gambar'    => 'required|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'kategori'  => 'required|string',
+            'rating'    => 'nullable|numeric|min:0|max:5',
+            'kalori'    => 'nullable|numeric',
         ]);
 
         $imageName = null;
         if ($request->hasFile('gambar')) {
             $image = $request->file('gambar');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = 'images/' . time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
         }
 
         menu::create([
-            'nama_menu' => $request->nama,
+            'nama_menu' => $request->nama_menu, // Perbaikan baris 57
             'deskripsi' => $request->deskripsi,
-            'harga' => $request->harga,
-            'gambar' => $imageName,
-            'kategori' => $request->kategori,
-            'rating' => $request->rating ?? 0,    // Simpan rating
-            'kalori' => $request->kalori ?? 0, // Simpan kalori
+            'harga'     => $request->harga,
+            'gambar'    => $imageName,
+            'kategori'  => $request->kategori,
+            'rating'    => $request->rating ?? 0,
+            'kalori'    => $request->kalori ?? 0,
         ]);
 
         return redirect()->back()->with('success', 'Menu berhasil ditambahkan!');
@@ -133,24 +136,24 @@ class AdminController extends Controller
         $request->validate([
             'nama_menu' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'harga' => 'required|numeric',
-            'gambar' => 'nullable|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
-            'kategori' => 'required|string',
-            'rating' => 'nullable|numeric|min:0|max:5',
-            'kalori' => 'nullable|numeric',
+            'harga'     => 'required|numeric',
+            'gambar'    => 'nullable|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'kategori'  => 'required|string',
+            'rating'    => 'nullable|numeric|min:0|max:5',
+            'kalori'    => 'nullable|numeric',
         ]);
 
         $menu = menu::findOrFail($id);
-        $data = $request->except('gambar'); // Ambil semua data kecuali gambar dulu
+        $data = $request->except('gambar');
 
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama dari folder
-            if ($menu->gambar && File::exists(public_path('images/' . $menu->gambar))) {
-                File::delete(public_path('images/' . $menu->gambar));
+            // Hapus gambar lama
+            if ($menu->gambar && File::exists(public_path($menu->gambar))) {
+                File::delete(public_path($menu->gambar));
             }
 
             $image = $request->file('gambar');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = 'images/' . time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
             $data['gambar'] = $imageName;
         }
@@ -163,14 +166,10 @@ class AdminController extends Controller
     public function menuDestroy($id)
     {
         $menu = menu::findOrFail($id);
-
-        // Hapus file gambar dari folder public/images sebelum menghapus data
-        if ($menu->gambar && File::exists(public_path('images/' . $menu->gambar))) {
-            File::delete(public_path('images/' . $menu->gambar));
+        if ($menu->gambar && File::exists(public_path($menu->gambar))) {
+            File::delete(public_path($menu->gambar));
         }
-
         $menu->delete();
-
         return redirect()->back()->with('success', 'Menu berhasil dihapus!');
     }
 
@@ -186,14 +185,15 @@ class AdminController extends Controller
             $query->where('status', $status);
         }
 
-        $orders = $query->get();
+        $orders = $query->paginate(10); 
         return view('admin.orders.index', compact('orders'));
     }
 
     public function orderUpdate(Request $request, $id)
     {
+        // Validasi mendukung status Bahasa Indonesia
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
+            'status' => 'required|in:pending,dimasak,dikemas,diantar,completed,cancelled'
         ]);
 
         $pesanan = pesanan::findOrFail($id);
@@ -214,7 +214,7 @@ class AdminController extends Controller
             $query->where('role', $role);
         }
 
-        $users = $query->get();
+        $users = $query->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 }
