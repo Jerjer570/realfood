@@ -1,5 +1,3 @@
-
-
 <section id="menu" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
@@ -40,32 +38,3 @@
         </div>
     </div>
 </section>
-
-{{--
-    $menuItems = [
-                    [
-                        'name' => 'Grilled Salmon Bowl',
-                        'description' => 'Salmon panggang dengan sayuran segar dan quinoa',
-                        'price' => 'Rp 85.000',
-                        'rating' => 4.8,
-                        'calories' => '450 kal',
-                        'image' => 'images/poto2.jpeg'
-                    ],
-                    [
-                        'name' => 'Fresh Garden Salad',
-                        'description' => 'Salad sayuran organik dengan dressing vinaigrette',
-                        'price' => 'Rp 45.000',
-                        'rating' => 4.7,
-                        'calories' => '280 kal',
-                        'image' => 'images/poto3.jpeg'
-                    ],
-                    [
-                        'name' => 'Açaí Berry Bowl',
-                        'description' => 'Smoothie bowl dengan topping buah segar dan granola',
-                        'price' => 'Rp 55.000',
-                        'rating' => 4.9,
-                        'calories' => '320 kal',
-                        'image' => 'images/poto7.webp'
-                    ]
-                ];
---}}

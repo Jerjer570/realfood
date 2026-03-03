@@ -42,6 +42,7 @@ class User extends Authenticatable // Sebaiknya extends Authenticatable untuk fi
     // Relasi
     public function pesanann() {
         return $this->hasMany(Pesanan::class, 'id_user');
+
     }
 
     public function sesii() {
@@ -52,3 +53,4 @@ class User extends Authenticatable // Sebaiknya extends Authenticatable untuk fi
         return $this->hasMany(Keranjang::class, 'id_user');
     }
 }
+
