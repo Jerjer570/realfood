@@ -21,4 +21,5 @@ class ServiceController extends Controller
     public function giftCard() {
         return view('pages.services.gift-card');
     }
+    
 }

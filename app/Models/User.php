@@ -2,14 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // Tambahkan ini
+use Illuminate\Foundation\Auth\User as Authenticatable; // Gunakan ini jika ini model User untuk Login
+use Illuminate\Notifications\Notifiable;
 
-class user extends Model{
+class User extends Authenticatable // Sebaiknya extends Authenticatable untuk fitur Auth
+{
+    use HasFactory, Notifiable; // Tambahkan HasFactory di sini
+
     protected $table = 'user';
     protected $primaryKey = 'id_user';
+
     protected $fillable = [
         'email',    
-        'nama',
+        'nama',      // Pastikan tetap 'nama'
         'role',
         'password',
         'alamat',
@@ -17,22 +23,32 @@ class user extends Model{
         'foto_profil',
         'status_email'
     ];
-    protected $hidden = ['password'];
-    protected $casts = ['password' => 'hashed'];
-    protected $guarded = ['id_user'];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'password' => 'hashed',
+    ];
+
+    // Nilai default untuk kolom tertentu
     protected $attributes = [
         'role' => 'user',
         'status_email' => 'unverified'
     ];
 
-    public function pesanann(){
-        return $this->hasMany(pesanan::class, 'id_user');
-    }
-    public function sesii(){
-        return $this->hasMany(sesi::class, 'id_user');
-    }
-    public function keranjangg(){
-        return $this->hasMany(keranjang::class, 'id_user');
+    // Relasi
+    public function pesanann() {
+        return $this->hasMany(Pesanan::class, 'id_user');
     }
 
+    public function sesii() {
+        return $this->hasMany(Sesi::class, 'id_user');
+    }
+
+    public function keranjangg() {
+        return $this->hasMany(Keranjang::class, 'id_user');
+    }
 }

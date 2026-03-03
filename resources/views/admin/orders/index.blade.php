@@ -35,25 +35,25 @@
     @else
         {{-- Orders Grid --}}
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            @foreach($orders as $order)
+            @foreach($orders as $pesanan)
             <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 group">
                 
                 {{-- Card Header --}}
                 <div class="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-start">
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">ID Pesanan</p>
-                        <h3 class="font-black text-gray-900 text-lg">#{{ $order->id }}</h3>
+                        <h3 class="font-black text-gray-900 text-lg">#{{ $pesanan->id_pesanan }}</h3>
                     </div>
                     <div class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest
-                        @if($order->status == 'pending') bg-yellow-100 text-yellow-700 
-                        @elseif($order->status == 'processing') bg-blue-100 text-blue-700
-                        @elseif($order->status == 'completed') bg-green-100 text-green-700
+                        @if($pesanan->status == 'pending') bg-yellow-100 text-yellow-700 
+                        @elseif($pesanan->status == 'processing') bg-blue-100 text-blue-700
+                        @elseif($pesanan->status == 'completed') bg-green-100 text-green-700
                         @else bg-red-100 text-red-700 @endif">
-                        {{ $order->status }}
+                        {{ $pesanan->status }}
                     </div>
                 </div>
 
-                {{-- Order Content --}}
+                {{-- pesanan Content --}}
                 <div class="p-6 flex-1 space-y-6">
                     {{-- User Info --}}
                     <div class="flex items-center gap-4">
@@ -61,20 +61,20 @@
                             <i class="fas fa-user"></i>
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">{{ $order->user->name }}</p>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $order->created_at->format('d M Y • H:i') }}</p>
+                            <p class="font-black text-gray-900">{{ $pesanan->user->nama }}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $pesanan->created_at->format('d M Y • H:i') }}</p>
                         </div>
                     </div>
 
                     {{-- Items List --}}
                     <div class="bg-gray-50/50 rounded-2xl p-4 space-y-3">
-                        @foreach($order->items as $item)
+                        @foreach($pesanan->keranjangg as $item)
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-gray-600 font-medium">
-    {{ $item->food->name }} 
-    <b class="text-gray-900 ml-1">x{{ $item->quantity }}</b>
+    {{ $item->pesanan->nama }} 
+    <b class="text-gray-900 ml-1">x{{ $item->kuantitas }}</b>
 </span>
-                                <span class="font-black text-gray-900">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
+                                <span class="font-black text-gray-900">Rp {{ number_format($item->harga * $item->kuantitas, 0, ',', '.') }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -84,7 +84,7 @@
                         <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-2 flex items-center gap-2">
                             <i class="fas fa-map-marker-alt text-green-600"></i> Alamat Pengiriman
                         </p>
-                        <p class="text-xs text-gray-600 leading-relaxed font-medium">{{ $order->deliveryAddress }}</p>
+                        <p class="text-xs text-gray-600 leading-relaxed font-medium">{{ $pesanan->alamat_pengiriman}}</p>
                     </div>
                 </div>
 
@@ -92,28 +92,28 @@
                 <div class="p-6 bg-gray-50/30 border-t border-gray-50 mt-auto">
                     <div class="flex justify-between items-center mb-6">
                         <span class="text-xs text-gray-400 font-black uppercase tracking-widest">Total Bayar</span>
-                        <span class="text-2xl font-black text-green-600 italic">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                        <span class="text-2xl font-black text-green-600 italic">Rp {{ number_format($pesanan->subtotal, 0, ',', '.') }}</span>
                     </div>
 
                     {{-- Action Buttons --}}
                     <div class="flex gap-3">
-                        @if($order->status == 'pending')
-                            <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="flex-1">
+                        @if($pesanan->status == 'pending')
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
                                 @csrf @method('PUT')
                                 <input type="hidden" name="status" value="processing">
                                 <button class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-100 transition-all">
                                     Proses
                                 </button>
                             </form>
-                            <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="flex-1">
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
                                 @csrf @method('PUT')
                                 <input type="hidden" name="status" value="cancelled">
                                 <button class="w-full bg-red-50 text-red-600 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all">
                                     Batal
                                 </button>
                             </form>
-                        @elseif($order->status == 'processing')
-                            <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="w-full">
+                        @elseif($pesanan->status == 'processing')
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="w-full">
                                 @csrf @method('PUT')
                                 <input type="hidden" name="status" value="completed">
                                 <button class="w-full bg-green-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 hover:shadow-lg hover:shadow-green-100 transition-all">

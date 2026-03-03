@@ -55,14 +55,14 @@
             </div>
         </div>
         
-        {{-- Avg Order Value --}}
+        {{-- Avg pesanan Value --}}
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-lg transition-all">
             <div class="flex items-center gap-5">
                 <div class="p-4 bg-orange-500 text-white rounded-2xl shadow-lg">
                     <i class="fas fa-chart-line text-xl"></i>
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Avg. Order</p>
+                    <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Avg. pesanan</p>
                     <h3 class="text-2xl font-black text-gray-900">Rp {{ number_format($averageOrderValue, 0, ',', '.') }}</h3>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                 ["Total Revenue", "Rp {{ number_format($totalRevenue, 0, ',', '.') }}"],
                 ["Total Pesanan", "{{ $totalOrders }}"],
                 ["Total Pelanggan", "{{ $totalCustomers }}"],
-                ["Average Order Value", "Rp {{ number_format($averageOrderValue, 0, ',', '.') }}"]
+                ["Average pesanan Value", "Rp {{ number_format($averageOrderValue, 0, ',', '.') }}"]
             ];
 
             const ws = XLSX.utils.aoa_to_sheet(data);

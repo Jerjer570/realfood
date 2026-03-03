@@ -14,20 +14,20 @@ class RegisterController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'name' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string',
-            'address' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+            'no_hp' => 'required|string',
+            'alamat' => 'required|string',
         ]);
 
         // 2. Simpan ke Database
         $user = User::create([
-            'name' => $request->name,
+            'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
             'role' => 'user', // Default sebagai user biasa
         ]);
 
