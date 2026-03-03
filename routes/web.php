@@ -7,15 +7,19 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\ProsesController;
-use App\Http\Controllers\ServiceController; // Tambahkan ini
+use App\Http\Controllers\ServiceController;
 
+/*
+|--------------------------------------------------------------------------
+| Public Routes (Bisa diakses tanpa login)
+|--------------------------------------------------------------------------
+*/
 
-
-//food beranda dan menu
+// Food: Beranda dan Katalog Menu
 Route::get('/', [FoodController::class, 'topRating'])->name('home');
 Route::get('/menu', [FoodController::class, 'daftarMenu'])->name('menu');
 
-// Detail Proses
+// Detail Proses Produksi
 Route::get('/pelajari-selengkapnya', [ProsesController::class, 'selengkapnya'])->name('about.detail');
 Route::prefix('proses')->name('proses.')->group(function () {
     Route::get('/bahan-baku', [ProsesController::class, 'bahan'])->name('bahan');
@@ -24,7 +28,7 @@ Route::prefix('proses')->name('proses.')->group(function () {
     Route::get('/pengiriman', [ProsesController::class, 'pengiriman'])->name('pengiriman');
 });
 
-// Halaman Service
+// Halaman Layanan (Services)
 Route::prefix('services')->name('services.')->group(function () {
     Route::get('/delivery', [ServiceController::class, 'delivery'])->name('delivery');
     Route::get('/catering', [ServiceController::class, 'catering'])->name('catering');
@@ -32,7 +36,11 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::get('/gift-card', [ServiceController::class, 'giftCard'])->name('gift-card');
 });
 
-//auth
+/*
+|--------------------------------------------------------------------------
+| Guest Routes (Hanya untuk user yang BELUM login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -40,7 +48,11 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-//user
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes (Harus Login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -57,11 +69,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
 
-Route::middleware(['auth'])->group(function () {
-    // Route untuk tombol tambah keranjang
-    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
-});
-
     // Profil & Riwayat User
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
@@ -71,8 +78,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [UserController::class, 'orderHistory'])->name('orders');
 });
 
-
-//admin
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (Harus Login & Role Admin)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
@@ -93,9 +103,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{id}', [AdminController::class, 'orderUpdate'])->name('update');
     });
 
-   // SEBELUMNYA:
-// Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
-
-// SESUDAH (Ganti menjadi ini):
-Route::get('/users', [UserController::class, 'listUsers'])->name('users.index');
+    // Kelola User
+    Route::get('/users', [UserController::class, 'listUsers'])->name('users.index');
 });

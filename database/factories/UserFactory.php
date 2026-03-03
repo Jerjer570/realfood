@@ -15,19 +15,20 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
-    {
-        return [
-            'nama'         => fake()->name(), // Perbaikan: Gunakan name(), bukan nama()
-            'email'        => fake()->unique()->safeEmail(),
-            'password'     => Hash::make('password123'),
-            'role'         => 'user',
-            'alamat'       => fake()->address(),
-            'no_hp'        => fake()->phoneNumber(),
-            'foto_profil'  => 'default.jpg',
-            'status_email' => 'verified',
-        ];
-    }
+   public function definition(): array
+{
+    return [
+        'nama' => fake()->name(), // Pastikan ini 'nama', bukan 'name'
+        'email' => fake()->unique()->safeEmail(),
+        'role' => 'user',
+        'status_email' => 'verified',
+        'password' => static::$password ??= Hash::make('password'),
+        'alamat' => fake()->address(),
+        'no_hp' => fake()->phoneNumber(),
+        'foto_profil' => 'default.jpg',
+        // HAPUS baris 'name' => ... jika masih ada di sini
+    ];
+}
 
     /**
      * Jika Anda tidak menggunakan kolom email_verified_at, 

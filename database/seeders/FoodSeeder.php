@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Food; // Alamat model harus benar
+use App\Models\menu; // Pastikan huruf kecil/besarnya sama dengan nama file Model kamu
 
 class FoodSeeder extends Seeder
 {
@@ -12,67 +12,70 @@ class FoodSeeder extends Seeder
      */
     public function run(): void
     {
-        // Data menu yang akan dimasukkan ke database
+        // 1. Data menu manual yang disesuaikan dengan Model 'menu'
         $menuItems = [
             [
-                'name' => 'Cooked Salad with Peanut Sauce',
-                'description' => 'Salad yang sudah direbus atau dikukus dengan saus kacang yang kaya rasa',
-                'price' => 85000,
-                'calories' => 450,
-                'image' => 'images/menu1.webp',
-                'rating' => 5.0,
-                'category' => 'Salads'
+                'nama_menu' => 'Cooked Salad with Peanut Sauce',
+                'deskripsi' => 'Salad yang sudah direbus atau dikukus dengan saus kacang yang kaya rasa',
+                'harga'     => 85000,
+                'kalori'    => 450,
+                'gambar'    => 'images/menu1.webp',
+                'rating'    => 5.0,
+                'kategori'  => 'Salads'
             ],
             [
-                'name' => 'Red Rice with Tempeh',
-                'description' => 'Nasi merah dengan tempeh yang dipotong kecil dan disajikan dengan sayuran segar',
-                'price' => 45000,
-                'calories' => 280,
-                'image' => 'images/menu2.webp',
-                'rating' => 4.6,
-                'category' => 'Main Course'
+                'nama_menu' => 'Red Rice with Tempeh',
+                'deskripsi' => 'Nasi merah dengan tempeh yang dipotong kecil dan disajikan dengan sayuran segar',
+                'harga'     => 45000,
+                'kalori'    => 280,
+                'gambar'    => 'images/menu2.webp',
+                'rating'    => 4.6,
+                'kategori'  => 'Main Course'
             ],
             [
-                'name' => 'Vegetables Mix',
-                'description' => 'Sayur mayur campur yang segar dan kaya serat, cocok untuk diet sehat',
-                'price' => 35000,
-                'calories' => 180,
-                'image' => 'images/menu3.webp',
-                'rating' => 4.7,
-                'category' => 'Bowls'
+                'nama_menu' => 'Vegetables Mix',
+                'deskripsi' => 'Sayur mayur campur yang segar dan kaya serat, cocok untuk diet sehat',
+                'harga'     => 35000,
+                'kalori'    => 180,
+                'gambar'    => 'images/menu3.webp',
+                'rating'    => 4.7,
+                'kategori'  => 'Bowls'
             ],
             [
-                'name' => 'Salmon with Corn Rice',
-                'description' => 'Ikan salmon dengan nasi jagung yang lezat dan sehat',
-                'price' => 55000,
-                'calories' => 380,
-                'image' => 'images/menu4.webp',
-                'rating' => 4.5,
-                'category' => 'Main Course'
+                'nama_menu' => 'Salmon with Corn Rice',
+                'deskripsi' => 'Ikan salmon dengan nasi jagung yang lezat dan sehat',
+                'harga'     => 55000,
+                'kalori'    => 380,
+                'gambar'    => 'images/menu4.webp',
+                'rating'    => 4.5,
+                'kategori'  => 'Main Course'
             ],
             [
-                'name' => 'Chicken Filled with Red Rice',
-                'description' => 'Dada ayam yang dipadukan dengan nasi merah dan sayuran segar',
-                'price' => 30000,
-                'calories' => 90,
-                'image' => 'images/menu5.webp',
-                'rating' => 4.7,
-                'category' => 'Main Course'
+                'nama_menu' => 'Chicken Filled with Red Rice',
+                'deskripsi' => 'Dada ayam yang dipadukan dengan nasi merah dan sayuran segar',
+                'harga'     => 30000,
+                'kalori'    => 90,
+                'gambar'    => 'images/menu5.webp',
+                'rating'    => 4.7,
+                'kategori'  => 'Main Course'
             ],
-             [
-                'name' => 'Boiled Egg with Oatmeal',
-                'description' => 'Telur rebus dengan oatmeal yang lezat dan sehat',
-                'price' => 25000,
-                'calories' => 120,
-                'image' => 'images/menu6.webp',
-                'rating' => 4.7,
-                'category' => 'Main Course'
+            [
+                'nama_menu' => 'Boiled Egg with Oatmeal',
+                'deskripsi' => 'Telur rebus dengan oatmeal yang lezat dan sehat',
+                'harga'     => 25000,
+                'kalori'    => 120,
+                'gambar'    => 'images/menu6.webp',
+                'rating'    => 4.7,
+                'kategori'  => 'Main Course'
             ]
         ];
 
-        // Looping untuk memasukkan data satu per satu
         foreach ($menuItems as $item) {
-            Food::create($item);
+            menu::create($item);
         }
+
+        // 2. Tambahkan 10 data acak otomatis
+        // Pastikan di Model menu kamu sudah ditambahkan: use HasFactory;
+        menu::factory()->count(100)->create();
     }
 }
