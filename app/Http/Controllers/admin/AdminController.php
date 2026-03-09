@@ -9,6 +9,7 @@ use App\Models\menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash; // Tambahkan ini untuk enkripsi password
 
 class AdminController extends Controller
 {
@@ -27,7 +28,6 @@ class AdminController extends Controller
             'completedOrders' => pesanan::where('status', 'completed')->count(),
         ];
 
-        // Memastikan relasi 'user' sesuai dengan yang ada di model Pesanan
         $recentOrders = pesanan::with('user')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recentOrders'));
@@ -47,7 +47,6 @@ class AdminController extends Controller
             ? $totalRevenue / $completedOrders->count() 
             : 0;
 
-        // PERBAIKAN: Join ke tabel menu untuk mengambil harga karena detail_pesanan tidak punya kolom harga
         $topItems = DB::table('detail_pesanan')
             ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
             ->select('menu.nama_menu', 
@@ -94,7 +93,6 @@ class AdminController extends Controller
      */
     public function menuIndex()
     {
-        // Menggunakan paginate agar sinkron dengan baris {{ $menuItems->links() }} di Blade
         $menuItems = menu::latest()->paginate(10); 
         return view('admin.menu.index', compact('menuItems'));
     }
@@ -119,7 +117,7 @@ class AdminController extends Controller
         }
 
         menu::create([
-            'nama_menu' => $request->nama_menu, // Perbaikan baris 57
+            'nama_menu' => $request->nama_menu,
             'deskripsi' => $request->deskripsi,
             'harga'     => $request->harga,
             'gambar'    => $imageName,
@@ -147,7 +145,6 @@ class AdminController extends Controller
         $data = $request->except('gambar');
 
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama
             if ($menu->gambar && File::exists(public_path($menu->gambar))) {
                 File::delete(public_path($menu->gambar));
             }
@@ -191,7 +188,6 @@ class AdminController extends Controller
 
     public function orderUpdate(Request $request, $id)
     {
-        // Validasi mendukung status Bahasa Indonesia
         $request->validate([
             'status' => 'required|in:pending,dimasak,dikemas,diantar,completed,cancelled'
         ]);
@@ -203,7 +199,7 @@ class AdminController extends Controller
     }
 
     /**
-     * 6. FITUR KELOLA PENGGUNA
+     * 6. FITUR KELOLA PENGGUNA (CRUD)
      */
     public function usersIndex(Request $request)
     {
@@ -216,5 +212,35 @@ class AdminController extends Controller
 
         $users = $query->paginate(10);
         return view('admin.users.index', compact('users'));
+    }
+
+    // Menampilkan Form Tambah User
+    public function userCreate()
+    {
+        return view('admin.users.create');
+    }
+
+    // Menyimpan Data User Baru
+    public function userStore(Request $request)
+    {
+        $request->validate([
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'role'     => 'required|in:admin,user',
+            'no_hp'    => 'nullable|string|max:15',
+            'alamat'   => 'nullable|string',
+        ]);
+
+        User::create([
+            'nama'     => $request->nama,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password), // Enkripsi password
+            'role'     => $request->role,
+            'no_hp'    => $request->no_hp,
+            'alamat'   => $request->alamat,
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna baru berhasil ditambahkan!');
     }
 }
