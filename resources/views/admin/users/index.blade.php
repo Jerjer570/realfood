@@ -10,10 +10,9 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-black text-gray-900 tracking-tight">User Management</h1>
-            <p class="text-gray-500 text-sm mt-1">Kelola dan pantau seluruh basis data pengguna sistem Real Food.</p>
+            <p class="text-gray-500 text-sm mt-1">Kelola foto profil, data pribadi, dan akses pengguna Real Food.</p>
         </div>
 
-        {{-- TOMBOL TAMBAH PENGGUNA --}}
         <a href="{{ route('admin.users.create') }}" 
            class="inline-flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-green-100 transition-all active:scale-95">
             <i class="fas fa-plus-circle text-sm"></i>
@@ -39,7 +38,7 @@
             </div>
             <div>
                 <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Administrator</p>
-                <h3 class="text-3xl font-black text-gray-900">{{ $users->where('role', 'admin')->count() }}</h3>
+                <h3 class="text-3xl font-black text-gray-900">{{ \App\Models\User::where('role', 'admin')->count() }}</h3>
             </div>
         </div>
 
@@ -49,7 +48,7 @@
             </div>
             <div>
                 <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Pelanggan Aktif</p>
-                <h3 class="text-3xl font-black text-gray-900">{{ $users->where('role', 'user')->count() }}</h3>
+                <h3 class="text-3xl font-black text-gray-900">{{ \App\Models\User::where('role', 'user')->count() }}</h3>
             </div>
         </div>
     </div>
@@ -77,7 +76,6 @@
                         <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pengguna</th>
                         <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Kontak</th>
                         <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Role</th>
-                        <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Alamat Pengiriman</th>
                         <th class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -86,19 +84,28 @@
                     <tr class="hover:bg-gray-50/30 transition-colors group">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-green-100 group-hover:text-green-600 transition-colors">
-                                    <i class="fas fa-user text-lg"></i>
+                                {{-- FOTO PROFIL (Direct Public Access) --}}
+                                <div class="w-14 h-14 rounded-2xl border-2 border-gray-100 overflow-hidden shadow-sm group-hover:border-green-400 transition-all flex-shrink-0">
+                                    @if($user->foto && file_exists(public_path($user->foto)))
+                                        <img src="{{ asset($user->foto) }}" 
+                                             alt="Profile" 
+                                             class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-green-50 group-hover:text-green-600 transition-colors uppercase font-black text-xs">
+                                            {{ substr($user->nama, 0, 2) }}
+                                        </div>
+                                    @endif
                                 </div>
                                 <div>
-                                    <p class="font-black text-gray-900">{{ $user->nama }}</p>
-                                    <p class="text-xs text-gray-400 font-medium">{{ $user->email }}</p>
+                                    <p class="font-black text-gray-900 leading-tight">{{ $user->nama }}</p>
+                                    <p class="text-xs text-gray-400 font-medium mt-1">{{ $user->email }}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-8 py-6">
                             @if($user->no_hp)
                                 <span class="text-sm text-gray-600 font-bold flex items-center gap-2">
-                                    <i class="fas fa-phone text-green-500 text-[10px]"></i>
+                                    <i class="fab fa-whatsapp text-green-500 text-sm"></i>
                                     {{ $user->no_hp }}
                                 </span>
                             @else
@@ -111,48 +118,32 @@
                                 {{ $user->role }}
                             </span>
                         </td>
-                        <td class="px-8 py-6">
-                            @if($user->alamat)
-                                <div class="flex items-start gap-2 max-w-xs group-hover:text-gray-900 transition-colors">
-                                    <i class="fas fa-map-marker-alt text-red-400 text-[10px] mt-1"></i>
-                                    <p class="text-sm text-gray-500 leading-relaxed line-clamp-2" title="{{ $user->alamat }}">
-                                        {{ $user->alamat }}
-                                    </p>
-                                </div>
-                            @else
-                                <span class="text-gray-300 italic text-xs">Alamat kosong</span>
-                            @endif
-                        </td>
-                       <td class="px-8 py-6 text-center">
-    <div class="flex justify-center gap-2">
-        {{-- TOMBOL EDIT --}}
-        <a href="{{ route('admin.users.edit', $user->id_user) }}" 
-           class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" 
-           title="Edit Pengguna">
-            <i class="fas fa-edit"></i>
-        </a>
+                        <td class="px-8 py-6 text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="{{ route('admin.users.edit', $user->id_user) }}" 
+                                   class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" 
+                                   title="Edit Pengguna">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </a>
 
-        {{-- TOMBOL HAPUS --}}
-        <form action="{{ route('admin.users.destroy', $user->id_user) }}" 
-              method="POST" 
-              onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" 
-                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" 
-                    title="Hapus Pengguna">
-                <i class="fas fa-trash"></i>
-            </button>
-        </form>
-    </div>
-</td>
+                                <form action="{{ route('admin.users.destroy', $user->id_user) }}" 
+                                      method="POST" 
+                                      onsubmit="return confirm('Hapus pengguna ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" 
+                                            title="Hapus Pengguna">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-8 py-20 text-center">
-                            <div class="flex flex-col items-center">
-                                <p class="text-gray-400 font-bold italic">Tidak ada pengguna yang sesuai filter.</p>
-                            </div>
+                        <td colspan="4" class="px-8 py-20 text-center">
+                            <p class="text-gray-400 font-bold italic">Tidak ada pengguna ditemukan.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -160,7 +151,6 @@
             </table>
         </div>
 
-        {{-- Navigasi Paginasi --}}
         <div class="p-8 border-t border-gray-50">
             {{ $users->links() }}
         </div>

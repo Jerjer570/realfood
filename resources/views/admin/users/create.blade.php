@@ -15,10 +15,34 @@
 
     {{-- Form Card --}}
     <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-        {{-- Pastikan route ini sesuai dengan Route::post di web.php --}}
-        <form action="{{ route('admin.users.store') }}" method="POST" class="p-10 space-y-6">
+        {{-- UPDATE: Tambahkan enctype agar bisa upload file --}}
+        <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" class="p-10 space-y-6">
             @csrf
             
+            {{-- Bagian Upload Foto --}}
+            <div class="flex flex-col items-center justify-center pb-6 border-b border-gray-50 mb-6" x-data="{photoPreview: null}">
+                <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4">Foto Profil</label>
+                <div class="relative group">
+                    <div class="w-32 h-32 rounded-[2rem] bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden transition-all group-hover:border-green-400">
+                        <template x-if="!photoPreview">
+                            <i class="fas fa-camera text-2xl text-gray-300"></i>
+                        </template>
+                        <template x-if="photoPreview">
+                            <img :src="photoPreview" class="w-full h-full object-cover">
+                        </template>
+                    </div>
+                    
+                    <input type="file" name="foto" class="hidden" id="photoInput" accept="image/*"
+                           @change="const file = $event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { photoPreview = e.target.result; }; reader.readAsDataURL(file); }">
+                    
+                    <button type="button" @click="document.getElementById('photoInput').click()" 
+                            class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-green-700 transition-all">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                @error('foto') <p class="text-red-500 text-[10px] mt-3 font-bold">{{ $message }}</p> @enderror
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Nama Lengkap --}}
                 <div class="space-y-2">

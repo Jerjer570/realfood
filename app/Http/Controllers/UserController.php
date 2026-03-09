@@ -7,6 +7,7 @@ use App\Models\pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File; // Tambahkan ini untuk mengelola file
 
 class UserController extends Controller
 {
@@ -36,28 +37,33 @@ class UserController extends Controller
     }
 
     /**
-     * 3. Menyimpan User Baru ke Database
+     * 3. Menyimpan User Baru (Admin)
      */
     public function store(Request $request)
     {
         $request->validate([
             'nama'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:user,email', // Gunakan 'user' sesuai nama tabel
+            'email'    => 'required|email|unique:user,email',
             'password' => 'required|min:8',
             'role'     => 'required|in:admin,user',
             'no_hp'    => 'nullable|string|max:20',
             'alamat'   => 'nullable|string',
+            'foto'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Validasi foto
         ]);
 
-        User::create([
-            'nama'         => $request->nama,
-            'email'        => $request->email,
-            'password'     => Hash::make($request->password),
-            'role'         => $request->role,
-            'no_hp'        => $request->no_hp,
-            'alamat'       => $request->alamat,
-            'status_email' => 'unverified',
-        ]);
+        $data = $request->all();
+        $data['password'] = Hash::make($request->password);
+        $data['status_email'] = 'unverified';
+
+        // Logika Simpan Foto ke PUBLIC/IMAGES/PROFILES
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $nama_foto = time() . '_' . str_replace(' ', '-', $request->nama) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/profiles'), $nama_foto);
+            $data['foto'] = 'images/profiles/' . $nama_foto;
+        }
+
+        User::create($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil ditambahkan!');
     }
@@ -79,21 +85,30 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'nama'  => 'required|string|max:255',
-            // Kecualikan ID user saat ini dari pengecekan unik email
-            'email' => 'required|email|unique:user,email,' . $user->id_user . ',id_user',
-            'role'  => 'required|in:admin,user',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat'=> 'nullable|string',
+            'nama'   => 'required|string|max:255',
+            'email'  => 'required|email|unique:user,email,' . $user->id_user . ',id_user',
+            'role'   => 'required|in:admin,user',
+            'no_hp'  => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
+            'foto'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $user->update([
-            'nama'  => $request->nama,
-            'email' => $request->email,
-            'role'  => $request->role,
-            'no_hp' => $request->no_hp,
-            'alamat'=> $request->alamat,
-        ]);
+        $data = $request->all();
+
+        // Logika Update Foto
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($user->foto && File::exists(public_path($user->foto))) {
+                File::delete(public_path($user->foto));
+            }
+
+            $file = $request->file('foto');
+            $nama_foto = time() . '_' . str_replace(' ', '-', $request->nama) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/profiles'), $nama_foto);
+            $data['foto'] = 'images/profiles/' . $nama_foto;
+        }
+
+        $user->update($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Data pengguna berhasil diperbarui!');
     }
@@ -105,9 +120,13 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Proteksi agar admin tidak menghapus dirinya sendiri
         if ($user->id_user == Auth::id()) {
             return back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri!');
+        }
+
+        // Hapus file foto dari folder public sebelum data dihapus
+        if ($user->foto && File::exists(public_path($user->foto))) {
+            File::delete(public_path($user->foto));
         }
 
         $user->delete();
@@ -115,7 +134,7 @@ class UserController extends Controller
     }
 
     /* |--------------------------------------------------------------------------
-    | USER PROFILE METHODS (Untuk User Biasa)
+    | USER PROFILE METHODS (Untuk User Biasa di Halaman Profile)
     |--------------------------------------------------------------------------
     */
 
@@ -133,13 +152,27 @@ class UserController extends Controller
             'nama'   => 'required|string|max:255',
             'no_hp'  => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
+            'foto'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $user->update([
+        $data = [
             'nama'   => $request->nama,
             'no_hp'  => $request->no_hp,
             'alamat' => $request->alamat,
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($user->foto && File::exists(public_path($user->foto))) {
+                File::delete(public_path($user->foto));
+            }
+
+            $file = $request->file('foto');
+            $nama_foto = time() . '_' . str_replace(' ', '-', $request->nama) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('images/profiles'), $nama_foto);
+            $data['foto'] = 'images/profiles/' . $nama_foto;
+        }
+
+        $user->update($data);
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
@@ -154,29 +187,26 @@ class UserController extends Controller
         return view('pages.orders', compact('orders'));
     }
 
-public function updatePassword(Request $request)
-{
-    $request->validate([
-        'current_password' => 'required',
-        'new_password'     => 'required|min:8|confirmed',
-    ], [
-        'new_password.confirmed' => 'Konfirmasi password baru tidak cocok.',
-        'new_password.min'       => 'Password baru minimal 8 karakter.',
-    ]);
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password'     => 'required|min:8|confirmed',
+        ], [
+            'new_password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+            'new_password.min'       => 'Password baru minimal 8 karakter.',
+        ]);
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // Cek apakah password lama benar
-    if (!Hash::check($request->current_password, $user->password)) {
-        return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return back()->with('success', 'Password berhasil diperbarui!');
     }
-
-    // Update password
-    $user->update([
-        'password' => Hash::make($request->new_password)
-    ]);
-
-    return back()->with('success', 'Password berhasil diperbarui!');
-}
-
 }

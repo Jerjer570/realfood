@@ -34,6 +34,7 @@
                         <i class="fas fa-id-card text-green-600"></i> Informasi Pribadi
                     </h2>
 
+                    {{-- Form Update Profil --}}
                     <form action="{{ route('profile.update') }}" method="POST" class="space-y-4">
                         @csrf
                         @method('PUT')
@@ -43,6 +44,7 @@
                             <input type="text" name="nama" :disabled="!isEditing" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 disabled:text-gray-500 transition"
                                    value="{{ old('nama', $user->nama) }}">
+                            @error('nama') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
@@ -57,6 +59,7 @@
                             <input type="text" name="no_hp" :disabled="!isEditing" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 transition"
                                    value="{{ old('no_hp', $user->no_hp) }}" placeholder="08123456789">
+                            @error('no_hp') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
@@ -64,6 +67,7 @@
                             <textarea name="alamat" :disabled="!isEditing" rows="3"
                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 transition"
                                       placeholder="Alamat lengkap Anda">{{ old('alamat', $user->alamat) }}</textarea>
+                            @error('alamat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div x-show="isEditing" x-transition>
@@ -95,6 +99,7 @@
                             <input type="password" name="current_password" required
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 outline-none transition"
                                    placeholder="••••••••">
+                            @error('current_password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -103,6 +108,7 @@
                                 <input type="password" name="new_password" required
                                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 outline-none transition"
                                        placeholder="Minimal 8 karakter">
+                                @error('new_password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
@@ -118,7 +124,7 @@
                     </form>
                     
                     <p class="text-xs text-gray-400 mt-4" x-show="!isChangingPassword">
-                        Terakhir diubah: {{ Auth::user()->updated_at->diffForHumans() }}
+                        Terakhir diubah: {{ $user->updated_at->diffForHumans() }}
                     </p>
                 </div>
             </div>
@@ -143,14 +149,16 @@
                             <p class="text-[10px] text-gray-400 italic">IP: {{ request()->ip() }}</p>
                         </div>
 
-                        <div class="pt-4">
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full text-red-600 text-sm font-bold hover:underline flex items-center justify-center gap-2">
-                                    <i class="fas fa-sign-out-alt"></i> Logout dari Semua Sesi
-                                </button>
-                            </form>
-                        </div>
+                        <div class="pt-4 border-t border-gray-100">
+    {{-- Gunakan Form POST murni, jangan gunakan link <a> --}}
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="w-full text-red-600 text-sm font-black hover:bg-red-50 py-4 rounded-2xl transition flex items-center justify-center gap-2 group">
+            <i class="fas fa-sign-out-alt group-hover:-translate-x-1 transition-transform"></i> 
+            Keluar dari Sesi
+        </button>
+    </form>
+</div>
                     </div>
                 </div>
             </div>

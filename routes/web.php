@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\ProsesController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\FinancialReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,7 @@ Route::get('/', [FoodController::class, 'topRating'])->name('home');
 Route::get('/menu', [FoodController::class, 'daftarMenu'])->name('menu');
 
 Route::get('/pelajari-selengkapnya', [ProsesController::class, 'selengkapnya'])->name('about.detail');
+
 Route::prefix('proses')->name('proses.')->group(function () {
     Route::get('/bahan-baku', [ProsesController::class, 'bahan'])->name('bahan');
     Route::get('/pemilihan-benih', [ProsesController::class, 'benih'])->name('benih');
@@ -39,7 +41,9 @@ Route::prefix('services')->name('services.')->group(function () {
 */
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    // Ubah .post menjadi 'login' saja agar sesuai dengan form action
+    Route::post('/login', [AuthController::class, 'login']); 
+    
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
@@ -61,20 +65,17 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [CartController::class, 'destroy'])->name('destroy');
     });
 
-    // Checkout
+    // Checkout & Pesanan
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
+    Route::get('/orders', [UserController::class, 'orderHistory'])->name('orders');
 
-    // Profil & Keamanan (Dikelompokkan di sini)
+    // Profil & Keamanan
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::put('/update', [UserController::class, 'update'])->name('update');
-        
-        // Rute untuk Ubah Password (profile.password.update)
         Route::put('/password', [UserController::class, 'updatePassword'])->name('password.update');
     });
-    
-    Route::get('/orders', [UserController::class, 'orderHistory'])->name('orders');
 });
 
 /*
@@ -84,25 +85,30 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
+    // Dashboard & Analytics
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
-    Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
+    
+    // Perbaikan: Rute Laporan Keuangan diarahkan ke FinancialReportController
+    Route::get('/financial-report', [FinancialReportController::class, 'index'])->name('financial.report');
     
     // Kelola Menu
     Route::prefix('menu')->name('menu.')->group(function () {
         Route::get('/', [AdminController::class, 'menuIndex'])->name('index'); 
+        Route::get('/create', [AdminController::class, 'menuCreate'])->name('create'); // Tambahan: View Create Menu
         Route::post('/store', [AdminController::class, 'menuStore'])->name('store');
+        Route::get('/{id}/edit', [AdminController::class, 'menuEdit'])->name('edit'); // Tambahan: View Edit Menu
         Route::put('/{id}', [AdminController::class, 'menuUpdate'])->name('update');
         Route::delete('/{id}', [AdminController::class, 'menuDestroy'])->name('destroy');
     });
 
-    // Kelola Pesanan
+    // Kelola Pesanan (Order Management)
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminController::class, 'ordersIndex'])->name('index'); 
         Route::put('/{id}', [AdminController::class, 'orderUpdate'])->name('update');
     });
 
-    // Kelola User Management (CRUD Admin)
+    // Kelola User Management (CRUD User dari sisi Admin)
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'listUsers'])->name('index');
         Route::get('/create', [UserController::class, 'create'])->name('create');

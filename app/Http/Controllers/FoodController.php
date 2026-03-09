@@ -44,4 +44,18 @@ class FoodController extends Controller
         
         return view('pages.detail', compact('item'));
     }
+
+public function index()
+{
+    // Mengambil semua menu dengan tambahan hitungan berapa kali dipesan
+    $menuItems = menu::withCount(['details as total_dipesan' => function($query) {
+        $query->select(DB::raw('sum(kuantitas)'));
+    }])->get();
+
+    // Mengambil daftar kategori unik untuk filter dropdown
+    $categories = menu::distinct()->pluck('kategori');
+
+    return view('pages.menu', compact('menuItems', 'categories'));
+}
+
 }
