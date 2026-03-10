@@ -17,12 +17,12 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cartItems = keranjang::with('menu')
+        $cartItems = keranjang::with('menuu')
             ->where('id_user', Auth::id())
             ->get();
 
         $subtotal = $cartItems->sum(function($item) {
-            return $item->menu->harga * $item->kuantitas;
+            return $item->menuu->harga * $item->kuantitas;
         });
 
         $shipping = 10000;
@@ -57,11 +57,16 @@ class CartController extends Controller
             keranjang::create([
                 'id_user' => Auth::id(),
                 'id_menu' => $id,
-                'kuantitas' => 1
+                'kuantitas' => 1,
+                'subtotal' => $food->harga
             ]);
         }
+        $cartCount = keranjang::where('id_user', Auth::id())->sum('kuantitas');
 
-        return back()->with('success', $menu->nama_menu . ' berhasil ditambah ke keranjang!');
+        return back()->with([
+            'success' => $food->nama_menu . ' berhasil ditambah ke keranjang!',
+            'cartCount' => $cartCount
+        ]);
     }
 
     /**
@@ -71,7 +76,7 @@ class CartController extends Controller
     {
         $cart = keranjang::where('id_keranjang', $id)->where('id_user', Auth::id())->firstOrFail();
         
-        $newQuantity = $keranjang->kuantitas + $request->change;
+        $newQuantity = $cart->kuantitas + $request->change;
         
         if ($newQuantity > 0) {
             $cart->update(['kuantitas' => $newQuantity]);
@@ -98,14 +103,14 @@ class CartController extends Controller
 
 public function checkout()
 {
-    $cartItems = keranjang::with('menu')->where('id_user', Auth::id())->get();
+    $cartItems = keranjang::with('menuu')->where('id_user', Auth::id())->get();
 
     if ($cartItems->isEmpty()) {
         return redirect()->route('menu')->with('error', 'Keranjang belanja Anda masih kosong.');
     }
 
     $subtotal = $cartItems->sum(function($item) {
-        return $item->menu->harga * $item->kuantitas;
+        return $item->menuu->harga * $item->kuantitas;
     });
 
     $shipping = 10000;
@@ -120,40 +125,42 @@ public function checkout()
     public function processOrder(Request $request)
     {
         $request->validate([
-            'alamat' => 'required|string',
+            'alamat_pengiriman' => 'required|string',
             'no_hp' => 'required|string',
             'metode_pembayaran' => 'required'
         ]);
 
-        $cartItems = keranjang::with('menu')->where('id_user', Auth::id())->get();
+        $cartItems = keranjang::with('menuu')->where('id_user', Auth::id())->get();
         
         if ($cartItems->isEmpty()) {
             return redirect()->route('menu')->with('error', 'Keranjang sudah kosong');
         }
 
         $subtotal = $cartItems->sum(function($item) {
-            return $item->menu->harga * $item->kuantitas;
+            return $item->menuu->harga * $item->kuantitas;
         });
 
         // Database Transaction untuk keamanan data
         DB::transaction(function () use ($request, $cartItems, $subtotal) {
             // 1. Buat Data pesanan Utama
             $pesanan = pesanan::create([
+
                 'id_user' => Auth::id(),
-                'total' => $subtotal + 10000,
-                'alamat' => $request->alamat,
+                'subtotal' => $subtotal + 10000,
+                'alamat_pengiriman' => $request->alamat_pengiriman,
+                'ongkos_kirim' => 10000,
                 'no_hp' => $request->no_hp,
-                'status' => 'pending',
+                'status' => 'menunggu',
                 'metode_pembayaran' => $request->metode_pembayaran
             ]);
 
             // 2. Simpan Detail Makanan ke OrderItems
             foreach ($cartItems as $item) {
                 detail_pesanan::create([
-                    'id_order' => $pesanan->id,
+                    'id_pesanan' => $pesanan->id_pesanan,
                     'id_menu'  => $item->id_menu,
                     'kuantitas' => $item->kuantitas,
-                    'harga'    => $item->menu->harga
+                    'subtotal'    => $item->subtotal
                 ]);
             }
 
@@ -163,4 +170,5 @@ public function checkout()
 
         return redirect()->route('orders')->with('success', 'Pesanan berhasil dibuat!');
     }
+
 }

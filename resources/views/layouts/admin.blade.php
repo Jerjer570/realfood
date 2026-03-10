@@ -83,12 +83,12 @@
             <div class="flex items-center gap-5 ml-auto">
                 @auth
                 <div class="text-right hidden sm:block">
-                    <p class="text-sm font-black text-gray-900 leading-none mb-1">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-green-600 font-black uppercase tracking-widest">{{ Auth::user()->role ?? 'Administrator' }}</p>
+                    <p class="text-sm font-black text-gray-900 leading-none mb-1">{{ Auth::user()->nama }}</p>
+                    <p class="text-[10px] text-green-600 font-black uppercase tracking-widest">{{ Auth::user()->role ?? 'Admin' }}</p>
                 </div>
                 <div class="relative group">
                     <div class="w-11 h-11 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 font-black border-2 border-white shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
-                        {{ substr(Auth::user()->name, 0, 1) }}
+                        {{ substr(Auth::user()->nama, 0, 1) }}
                     </div>
                 </div>
                 @endauth

@@ -49,7 +49,7 @@
                             </x-slot>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-                                <x-form-group label="Nomor WhatsApp" name="phone" placeholder="0812..." value="{{ Auth::user()->phone }}" />
+                                <x-form-group label="Nomor WhatsApp" name="phone" placeholder="0812..." value="{{ Auth::user()->no_hp }}" />
                                 
                                 <x-form-group label="Email" name="email" type="email" value="{{ Auth::user()->email }}">
                                     {{-- Tooltip untuk info tambahan --}}

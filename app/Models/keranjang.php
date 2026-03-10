@@ -11,6 +11,8 @@ class keranjang extends Model
     protected $fillable = [
         'kuantitas',
         'subtotal',
+        'id_user',
+        'id_menu'
     ];
     protected $guarded = ['id_keranjang'];
     protected $casts = ['kuantitas' => 'integer',

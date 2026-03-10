@@ -21,7 +21,7 @@
             </div>
         @else
             <div class="space-y-6">
-                @foreach($orders as $order)
+                @foreach($orders as $pesanan)
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="p-6 border-b border-gray-50 flex flex-wrap justify-between items-center gap-4">
                             <div class="flex items-center gap-4">
@@ -29,54 +29,71 @@
                                     <i class="fas fa-receipt text-xl"></i>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">ID Pesanan</p>
-                                    <p class="font-bold text-gray-900">#{{ $order->id }}</p>
+                                    
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $pesanan->created_at->format('d M Y • H:i') }}</p>
                                 </div>
                             </div>
                             
                             <div class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold
-                                @if($order->status == 'completed') bg-green-100 text-green-700 
-                                @elseif($order->status == 'pending') bg-yellow-100 text-yellow-700
+                                @if($pesanan->status == 'selesai') bg-green-100 text-green-700 
+                                @elseif($pesanan->status == 'menunggu') bg-yellow-100 text-yellow-700
                                 @else bg-blue-100 text-blue-700 @endif">
                                 <i class="fas 
-                                    @if($order->status == 'completed') fa-check-circle 
-                                    @elseif($order->status == 'pending') fa-clock 
+                                    @if($pesanan->status == 'selesai') fa-check-circle 
+                                    @elseif($pesanan->status == 'menunggu') fa-clock
+                                    @elseif($pesanan->status == 'dimasak') fa-box
+                                    @elseif($pesanan->status == 'menuju alamat') fa-truck
                                     @else fa-box @endif"></i>
-                                {{ ucfirst($order->status) }}
+                                {{ ucfirst($pesanan->status) }}
                             </div>
                         </div>
 
                         <div class="p-6 space-y-4">
-                            @foreach($order->items as $item)
+                            @foreach($pesanan->keranjangg as $item)
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-4">
                                         <div class="text-sm">
-                                            <p class="font-bold text-gray-900">{{ $item->food->name }}</p>
-                                            <p class="text-gray-500">Qty: {{ $item->quantity }}</p>
+                                            <p class="font-bold text-gray-900">{{ $item->menuu->nama_menu }}</p>
+                                            <p class="text-gray-500">Qty: {{ $item->kuantitas }}</p>
                                         </div>
                                     </div>
-                                    <p class="font-bold text-gray-900">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
+                                    <p class="font-bold text-gray-900">Rp {{ number_format($item->menuu->harga * $item->kuantitas, 0, ',', '.') }}</p>
                                 </div>
                             @endforeach
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-sm">
+                                            <p class="font-bold text-gray-900">Ongkos Pengiriman</p>
+                                        </div>
+                                    </div>
+                                    <p class="font-bold text-gray-900">Rp 10.000</p>
+                                </div>
                         </div>
 
                         <div class="p-6 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div>
                                 <p class="text-xs text-gray-500">Total Pembayaran</p>
-                                <p class="text-2xl font-bold text-green-600">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
+                                <p class="text-2xl font-bold text-green-600">Rp {{ number_format($pesanan->subtotal, 0, ',', '.') }}</p>
                             </div>
-                            
-                            @if($order->status == 'completed')
+                            @if($pesanan->status == 'menuju alamat')
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="w-full">
+                                @csrf @method('PUT')
+                                <input type="hidden" name="status" value="selesai">
+                                <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                        Selesaikan Pesanan
+                                    </button>
+                            </form>
+                            @elseif($pesanan->status == 'selesai')
                                 <a href="{{ route('menu') }}">
-    <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
-        Pesan Lagi
-    </button>
-</a>
+                                    <button class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                        Pesan Lagi
+                                    </button>
+                                </a>
                             @endif
                         </div>
 
                         <div class="px-6 py-4 border-t border-gray-100 text-xs text-gray-500">
-                            <p><i class="fas fa-map-marker-alt mr-1"></i> {{ $order->deliveryAddress }}</p>
+                            <p><i class="fas fa-map-marker-alt mr-1"></i> {{ $pesanan->alamat_pengiriman }}</p>
                         </div>
                     </div>
                 @endforeach

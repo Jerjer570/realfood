@@ -21,7 +21,6 @@
                 <div class="p-4 bg-green-600 text-white rounded-2xl shadow-lg shadow-green-100 group-hover:scale-110 transition-transform">
                     <i class="fas fa-dollar-sign text-xl"></i>
                 </div>
-                <span class="text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-tighter">+12.5%</span>
             </div>
             <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Revenue</p>
             <h3 class="text-2xl font-black text-gray-900 italic">Rp {{ number_format($stats['totalRevenue'], 0, ',', '.') }}</h3>
@@ -68,27 +67,29 @@
                 <a href="{{ route('admin.orders.index') }}" class="text-[10px] font-black uppercase tracking-widest text-green-600 hover:text-green-700 transition-colors">Lihat Semua <i class="fas fa-arrow-right ml-1"></i></a>
             </div>
             <div class="divide-y divide-gray-50">
-                @forelse($recentOrders as $order)
+                @forelse($recentOrders as $pesanan)
                 <div class="p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
                     <div class="flex items-center gap-5">
                         <div class="p-4 rounded-2xl transition-all shadow-sm
-                            @if($order->status == 'pending') bg-yellow-50 text-yellow-600 group-hover:bg-yellow-100 
-                            @elseif($order->status == 'processing') bg-blue-50 text-blue-600 group-hover:bg-blue-100
+                            @if($pesanan->status == 'menunggu') bg-yellow-50 text-yellow-600 group-hover:bg-yellow-100 
+                            @elseif($pesanan->status == 'dimasak') bg-blue-50 text-blue-600 group-hover:bg-blue-100
+                            @elseif($pesanan->status == 'menuju alamat') bg-blue-50 text-blue-600 group-hover:bg-blue-100
                             @else bg-green-50 text-green-600 group-hover:bg-green-100 @endif">
-                            <i class="fas @if($order->status == 'pending') fa-clock @elseif($order->status == 'processing') fa-box @else fa-check @endif text-lg"></i>
+                            <i class="fas @if($pesanan->status == 'menunggu') fa-clock @elseif($pesanan->status == 'dimasak') fa-box @elseif($pesanan->status == 'menuju alamat') fa-truck @else fa-check @endif text-lg"></i>
                         </div>
                         <div>
-                            <p class="font-black text-gray-900 text-base">Order #{{ $order->id }}</p>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $order->created_at->diffForHumans() }}</p>
+                            <p class="font-black text-gray-900 text-base">pesanan #{{ $pesanan->id_pesanan }}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $pesanan->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="font-black text-gray-900 text-lg">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
+                        <p class="font-black text-gray-900 text-lg">Rp {{ number_format($pesanan->subtotal, 0, ',', '.') }}</p>
                         <span class="text-[10px] font-black uppercase tracking-widest
-                            @if($order->status == 'pending') text-yellow-600 
-                            @elseif($order->status == 'processing') text-blue-600
+                            @if($pesanan->status == 'menunggu') text-yellow-600 
+                            @elseif($pesanan->status == 'dimasak') text-blue-600
+                            @elseif($pesanan->status == 'menuju alamat') text-blue-600
                             @else text-green-600 @endif">
-                            {{ $order->status }}
+                            {{ $pesanan->status }}
                         </span>
                     </div>
                 </div>

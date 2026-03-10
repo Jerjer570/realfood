@@ -3,7 +3,7 @@
 @section('content')
 <style>[x-cloak] { display: none !important; }</style>
 
-<div class="pb-16 min-h-screen" x-data="{ isModalOpen: false, editingItem: null }" x-cloak>
+<div class="pb-16 min-h-screen" x-data="{ isModalOpen: false, editingItem: null,  searchQuery: ''}" x-cloak>
     <div class="mx-auto">
         {{-- Header & Alert --}}
         @if(session('success'))
@@ -11,11 +11,33 @@
                 <i class="fas fa-check-circle"></i> {{ session('success') }}
             </div>
         @endif
+        {{-- Pesan Error --}}
+        @if($errors->any())
+            <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-2xl font-bold shadow-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Terjadi kesalahan:</span>
+                </div>
+
+                <ul class="list-disc list-inside font-medium space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-3xl font-black text-gray-900 tracking-tight italic">Kelola Menu</h1>
                 <p class="text-gray-500 text-sm mt-1">Total <span class="font-bold text-green-600">{{ count($menuItems) }}</span> menu tersedia saat ini.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="relative">
+                    <input type="text" x-model="searchQuery" placeholder="Cari menu..." 
+                           class="pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none w-full sm:w-64">
+                    <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                </div>
             </div>
             <button @click="isModalOpen = true; editingItem = null" 
                     class="bg-green-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-green-700 transition-all flex items-center gap-2 shadow-lg shadow-green-100 active:scale-95">
@@ -26,17 +48,18 @@
         {{-- Grid Menu --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @forelse($menuItems as $item)
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group" 
+            x-show="searchQuery === '' || '{{ strtolower($item->nama_menu . ' ' . $item->deskripsi) }}'.includes(searchQuery.toLowerCase())">
                 <div class="relative h-52 overflow-hidden">
                     {{-- UPDATE: Path gambar ke folder /images/ --}}
-                    <img src="{{ asset('images/' . $item->image) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <img src="{{ asset('images/' . $item->gambar) }}" alt="{{ $item->nama_menu }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-green-600 tracking-widest shadow-sm">
                         {{ $item->kategori }}
                     </div>
                 </div>
                 <div class="p-8">
                     <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-lg font-black text-gray-900 leading-tight h-12 line-clamp-2">{{ $item->nama }}</h3>
+                        <h3 class="text-lg font-black text-gray-900 leading-tight h-12 line-clamp-2">{{ $item->nama_menu }}</h3>
                         <div class="flex flex-col items-end gap-1">
                             <div class="flex items-center gap-1 text-yellow-400">
                                 <i class="fas fa-star text-[10px]"></i>
@@ -101,7 +124,7 @@
                     {{-- Nama Menu --}}
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Nama Menu</label>
-                        <input type="text" name="name" x-model="editingItem ? editingItem.nama : ''" required 
+                        <input type="text" name="nama_menu" x-model="editingItem ? editingItem.nama_menu : ''" required 
                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none transition-all">
                     </div>
 
@@ -109,12 +132,12 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Harga (Rp)</label>
-                            <input type="number" name="price" x-model="editingItem ? editingItem.harga : ''" required 
+                            <input type="number" name="harga" x-model="editingItem ? editingItem.harga : ''" required 
                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Kategori</label>
-                            <select name="category" x-model="editingItem ? editingItem.kategori : 'Bowls'" 
+                            <select name="kategori" x-model="editingItem ? editingItem.kategori : 'Bowls'" 
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none appearance-none">
                                 <option value="Bowls">Bowls</option>
                                 <option value="Salads">Salads</option>
@@ -136,7 +159,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Kalori (kcal)</label>
-                            <input type="number" name="calories" 
+                            <input type="number" name="kalori" 
                                    x-model="editingItem ? editingItem.kalori : ''" 
                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none" 
                                    placeholder="Contoh: 350">
@@ -147,7 +170,7 @@
                     {{-- Upload Gambar --}}
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Upload Gambar</label>
-                        <input type="file" name="image" 
+                        <input type="file" name="gambar" 
                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                         
                         <template x-if="editingItem && editingItem.gambar">
@@ -161,7 +184,7 @@
                     {{-- Deskripsi --}}
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Deskripsi</label>
-                        <textarea name="description" rows="3" x-model="editingItem ? editingItem.deskripsi : ''" 
+                        <textarea name="deskripsi" rows="3" x-model="editingItem ? editingItem.deskripsi : ''" 
                                   class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none"></textarea>
                     </div>
 

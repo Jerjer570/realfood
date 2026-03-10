@@ -18,27 +18,27 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($menuItems as $item)
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group"
-                 x-show="searchQuery === '' || '{{ strtolower($item->name) }}'.includes(searchQuery.toLowerCase())">
+                 x-show="searchQuery === '' || '{{ strtolower($item->nama_menu) }}'.includes(searchQuery.toLowerCase())">
                 <div class="relative h-48 overflow-hidden">
-                  <img src="{{ asset('images/' . $item->image) }}" alt="{{ $item->name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                  <img src="{{ asset('images/' . $item->gambar) }}" alt="{{ $item->nama_menu }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-green-600">
-                        {{ $item->calories }} kal
+                        {{ $item->kalori }} kal
                     </div>
                 </div>
                 <div class="p-5">
                     <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-lg font-bold text-gray-900">{{ $item->name }}</h3>
+                        <h3 class="text-lg font-bold text-gray-900">{{ $item->nama_menu }}</h3>
                         <div class="flex items-center text-yellow-400">
                             <i class="fas fa-star text-xs"></i>
                             <span class="text-xs text-gray-600 ml-1">{{ $item->rating }}</span>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ $item->description }}</p>
+                    <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ $item->deskripsi }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-                       {{-- Bungkus dengan Form POST untuk mengirim ID makanan ke CartController --}}
-<form action="{{ route('cart.add', $item->id) }}" method="POST">
-    @csrf {{-- Wajib untuk keamanan Laravel --}}
+                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($item->harga, 0, ',', '.') }}</span>
+                       
+<form action="{{ route('cart.add', $item->id_menu) }}" method="POST">
+    @csrf 
     <button type="submit" class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition-colors active:scale-90">
         <i class="fas fa-plus"></i>
     </button>

@@ -9,6 +9,46 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+
+/*
+     public function listUsers(Request $request)
+    {
+        $usersss = User::latest()->get();
+        $roleFilter = $request->query('role', 'all');
+        $query = User::query();
+
+        if ($roleFilter !== 'all') {
+            $query->where('role', $roleFilter);
+        }
+        $users = $query->latest()->paginate(10)->withQueryString();
+        return view('admin.users.index', compact('users', 'usersss'));
+    }
+*/
+    
+    public function listUsers(Request $request)
+{
+    $search = $request->query('search');
+    $roleFilter = $request->query('role', 'all');
+
+    $query = User::query();
+
+    if ($roleFilter !== 'all') {
+        $query->where('role', $roleFilter);
+    }
+
+    if ($search) {
+        $query->where(function($q) use ($search){
+            $q->where('nama', 'like', "%$search%")
+              ->orWhere('email', 'like', "%$search%")
+              ->orWhere('no_hp', 'like', "%$search%");
+        });
+    }
+
+    $users = $query->latest()->paginate(10)->withQueryString();
+    $usersss = User::get();
+
+    return view('admin.users.index', compact('users','search','roleFilter', 'usersss'));
+}
     /**
      * Menampilkan halaman profil user (Berdasarkan ProfilePage.tsx)
      */
@@ -21,6 +61,7 @@ class UserController extends Controller
         return view('pages.profile', compact('user', 'sessions'));
     }
 
+    
     /**
      * Memperbarui data profil (Nama, Telepon, Alamat)
      */
@@ -50,7 +91,7 @@ class UserController extends Controller
     {
         // Mengambil pesanan milik user, diurutkan dari yang terbaru
         $orders = pesanan::where('id_user', Auth::id())
-            ->with('keranjangg') // Pastikan ada relasi 'items' di model pesanan
+            ->with('keranjangg')
             ->latest()
             ->get();
 

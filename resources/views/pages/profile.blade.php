@@ -10,7 +10,7 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="flex-1 text-center md:text-left">
-                    <h1 class="text-3xl font-bold text-gray-900">{{ $user->name }}</h1>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ $user->nama }}</h1>
                     <p class="text-gray-500">{{ $user->email }}</p>
                     <span class="inline-block mt-2 px-4 py-1 bg-green-50 text-green-700 rounded-full text-sm font-bold uppercase tracking-wider">
                         {{ $user->role }}
@@ -38,9 +38,9 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                            <input type="text" name="name" :disabled="!isEditing" 
+                            <input type="text" name="nama" :disabled="!isEditing" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 disabled:text-gray-500 transition"
-                                   value="{{ old('name', $user->name) }}">
+                                   value="{{ old('nama', $user->nama) }}">
                         </div>
 
                         <div>
@@ -52,16 +52,16 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
-                            <input type="text" name="phone" :disabled="!isEditing" 
+                            <input type="text" name="no_hp" :disabled="!isEditing" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 transition"
-                                   value="{{ old('phone', $user->phone) }}" placeholder="Contoh: 08123456789">
+                                   value="{{ old('no_hp', $user->no_hp) }}" placeholder="Contoh: 08123456789">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Default</label>
-                            <textarea name="address" :disabled="!isEditing" rows="3"
+                            <textarea name="alamat" :disabled="!isEditing" rows="3"
                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none disabled:bg-gray-50 transition"
-                                      placeholder="Alamat pengiriman makanan">{{ old('address', $user->address) }}</textarea>
+                                      placeholder="Alamat pengiriman makanan">{{ old('alamat', $user->alamat) }}</textarea>
                         </div>
 
                         <div x-show="isEditing" x-transition>

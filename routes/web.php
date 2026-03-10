@@ -56,10 +56,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/process', [CartController::class, 'processOrder'])->name('checkout.process');
 
-Route::middleware(['auth'])->group(function () {
-    // Route untuk tombol tambah keranjang
-    Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
-});
 
     // Profil & Riwayat User
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -74,11 +70,14 @@ Route::middleware(['auth'])->group(function () {
 //admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
+    // Dashboard & Analytics
+    //admin.
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('analytics');
     Route::get('/financial-report', [AdminController::class, 'financialReport'])->name('financial.report');
     
     // Kelola Menu Admin
+    //admin.menu.
     Route::prefix('menu')->name('menu.')->group(function () {
         Route::get('/', [AdminController::class, 'menuIndex'])->name('index'); 
         Route::post('/store', [AdminController::class, 'menuStore'])->name('store');
@@ -87,11 +86,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Kelola Pesanan Admin
+    //admin.orders.
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [AdminController::class, 'ordersIndex'])->name('index'); 
         Route::put('/{id}', [AdminController::class, 'orderUpdate'])->name('update');
     });
 
     // Kelola Pengguna Admin
-    Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
+    //admin.users.
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'listUsers'])->name('index');
+        Route::post('/store', [AdminController::class, 'usersStore'])->name('store');
+        Route::put('/{id}', [AdminController::class, 'usersUpdate'])->name('update');
+        Route::delete('/{id}', [AdminController::class, 'usersDestroy'])->name('destroy');
+    });
+
+    //Route::get('/users', [UserController::class, 'listUsers'])->name('users.index');
 });

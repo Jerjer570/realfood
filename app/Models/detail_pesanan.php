@@ -10,7 +10,9 @@ class detail_pesanan extends Model
     protected $primaryKey = 'id_detail';
     protected $fillable = [
         'kuantitas',
-        'subtotal'
+        'subtotal',
+        'id_pesanan',
+        'id_menu'
     ];
     protected $guarded = ['id_detail'];
     protected $casts = ['kuantitas' => 'integer',

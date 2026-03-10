@@ -24,7 +24,7 @@
                 <label class="text-sm font-medium text-gray-700">Nama Lengkap</label>
                 <div class="relative">
                     <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" name="name" value="{{ old('name') }}" required 
+                    <input type="text" name="nama" value="{{ old('nama') }}" required 
                            class="w-full pl-12 pr-4 py-3 rounded-xl border @error('name') border-red-500 @else border-gray-200 @enderror focus:ring-2 focus:ring-green-600 outline-none transition"
                            placeholder="Masukkan nama lengkap">
                 </div>
@@ -48,11 +48,11 @@
                 <label class="text-sm font-medium text-gray-700">Nomor Telepon</label>
                 <div class="relative">
                     <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" name="phone" value="{{ old('phone') }}" 
+                    <input type="text" name="no_hp" value="{{ old('no_hp') }}" required
                            class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none transition"
                            placeholder="0812xxxx">
                 </div>
-                @error('phone') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                @error('no_hp') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             {{-- Alamat --}}
@@ -60,11 +60,11 @@
                 <label class="text-sm font-medium text-gray-700">Alamat</label>
                 <div class="relative">
                     <i class="fas fa-map-marker-alt absolute left-4 top-3 text-gray-400"></i>
-                    <textarea name="address" rows="2" 
+                    <textarea name="alamat" rows="2" required
                               class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none transition"
-                              placeholder="Alamat lengkap pengiriman">{{ old('address') }}</textarea>
+                              placeholder="Alamat lengkap pengiriman">{{ old('alamat') }}</textarea>
                 </div>
-                @error('address') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                @error('alamat') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             {{-- Password --}}

@@ -14,12 +14,13 @@ class pesanan extends Model
         'alamat_pengiriman',
         'no_hp',
         'metode_pembayaran',
-        'ongkos_kirim'
+        'ongkos_kirim',
+        'id_user'
     ];
     protected $guarded = ['id_pesanan'];
     protected $casts = ['subtotal' => 'float',
                         'ongkos_kirim' => 'float'];
-    protected $attributes = ['status' => 'pending'];
+    protected $attributes = ['status' => 'menunggu'];
 
     public function userr(){
         return $this->belongsTo(user::class, 'id_user');

@@ -41,8 +41,7 @@ class AuthController extends Controller
 
     // --- REGISTER ---
 
-    public function showRegister()
-    {
+    public function showRegister(){
         return view('auth.register');
     }
 
@@ -50,7 +49,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:user,email',
             'password' => 'required|string|min:6|confirmed', 
             'no_hp' => 'nullable|string',
             'alamat' => 'nullable|string',
@@ -65,6 +64,8 @@ class AuthController extends Controller
             'role' => 'user', 
             'no_hp' => $request->no_hp,
             'alamat' => $request->alamat,
+            'foto_profil' => null,
+            'status_email' => 'unverified',
         ]);
 
         Auth::login($user);
@@ -79,6 +80,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect()->route('home');
     }
+    
 }

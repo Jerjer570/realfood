@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\pesanan;
 use App\Models\User;
 use App\Models\menu;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -21,10 +23,10 @@ class AdminController extends Controller
             'totalUsers' => User::where('role', 'user')->count(),
             'totalMenuItems' => menu::count(),
             'totalOrders' => pesanan::count(),
-            'totalRevenue' => pesanan::where('status', 'completed')->sum('subtotal'),
-            'pendingOrders' => pesanan::where('status', 'pending')->count(),
-            'processingOrders' => pesanan::where('status', 'processing')->count(),
-            'completedOrders' => pesanan::where('status', 'completed')->count(),
+            'totalRevenue' => pesanan::where('status', 'selesai')->sum('subtotal'),
+            'pendingOrders' => pesanan::where('status', 'menunggu')->count(),
+            'processingOrders' => pesanan::where('status', 'dimasak')->orWhere('status', 'menuju alamat')->count(),
+            'completedOrders' => pesanan::where('status', 'selesai')->count(),
         ];
 
         $recentOrders = pesanan::with('userr')->latest()->take(5)->get();
@@ -39,8 +41,8 @@ class AdminController extends Controller
     {
         $totalOrders = pesanan::count();
         $totalCustomers = User::where('role', 'user')->count();
-        $completedOrders = pesanan::where('status', 'completed')->get();
-        $totalRevenue = $completedOrders->sum('total');
+        $completedOrders = pesanan::where('status', 'selesai')->get();
+        $totalRevenue = $completedOrders->sum('subtotal');
         
         $averageOrderValue = $completedOrders->count() > 0 
             ? $totalRevenue / $completedOrders->count() 
@@ -50,18 +52,36 @@ class AdminController extends Controller
             ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
             ->select('menu.nama_menu', 
                      DB::raw('SUM(detail_pesanan.kuantitas) as count'), 
-                     DB::raw('SUM(detail_pesanan.kuantitas * detail_pesanan.harga) as revenue'))
+                     DB::raw('SUM(detail_pesanan.kuantitas * detail_pesanan.subtotal) as revenue'))
             ->groupBy('menu.nama_menu', 'menu.id_menu')
             ->orderByDesc('count')
             ->take(5)
             ->get();
+        
+        $grafikPendapatan = DB::table('pesanan')
+        ->selectRaw('DATE(created_at) as tanggal, SUM(subtotal + ongkos_kirim) as total')
+        ->where('status', 'selesai')
+        ->where('created_at', '>=', now()->subDays(7))
+        ->groupBy('tanggal')
+        ->orderBy('tanggal', 'asc')
+        ->get();
 
+        // Mapping ke nama hari (Indonesia)
+        $labels = [];
+        $totals = [];
+
+        foreach ($grafikPendapatan as $row) {
+            $labels[] = Carbon::parse($row->tanggal)->locale('id')->dayName;
+            $totals[] = $row->total;
+        }
         return view('admin.analytics', compact(
             'totalRevenue', 
             'averageOrderValue', 
             'topItems', 
             'totalOrders', 
-            'totalCustomers'
+            'totalCustomers',
+            'labels',
+            'totals'
         ));
     }
 
@@ -70,20 +90,27 @@ class AdminController extends Controller
      */
     public function financialReport()
     {
-        $completedOrders = pesanan::where('status', 'completed')->get();
-        $totalRevenue = $completedOrders->sum('subtotal');
+        $completedOrders = pesanan::where('status', 'selesai')->get();
+        
         $totalOrders = pesanan::count();
         $totalCustomers = User::where('role', 'user')->count();
         
+        $totalPendapatanOngkir = $completedOrders->sum('ongkos_kirim');
+        $totalPendapatanPesanan = $completedOrders->sum('subtotal');
+        $totalRevenue = $totalPendapatanOngkir + $totalPendapatanPesanan;
+
         $averageOrderValue = $completedOrders->count() > 0 
             ? $totalRevenue / $completedOrders->count() 
             : 0;
+
 
         return view('admin.reports.financial', compact(
             'totalRevenue', 
             'totalOrders', 
             'totalCustomers', 
-            'averageOrderValue'
+            'averageOrderValue',
+            'totalPendapatanOngkir',
+            'totalPendapatanPesanan'
         ));
     }
 
@@ -100,29 +127,29 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama_menu' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
             'harga' => 'required|numeric',
-            'gambar' => 'required|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'kalori' => 'nullable|numeric',
+            'deskripsi' => 'required|string',
             'kategori' => 'required|string',
-            'rating' => 'nullable|numeric|min:0|max:5', // Tambahan validasi rating
-            'kalori' => 'nullable|numeric',           // Tambahan validasi kalori
+            'gambar' => 'required|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+            'rating' => 'nullable|numeric|min:0|max:5',
         ]);
 
         $imageName = null;
         if ($request->hasFile('gambar')) {
             $image = $request->file('gambar');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images'), $imageName);
+            $image->move(public_path('images/'), $imageName);
         }
 
         menu::create([
-            'nama_menu' => $request->nama,
-            'deskripsi' => $request->deskripsi,
+            'nama_menu' => $request->nama_menu,
             'harga' => $request->harga,
-            'gambar' => $imageName,
+            'kalori' => $request->kalori ?? 0,
+            'deskripsi' => $request->deskripsi,
             'kategori' => $request->kategori,
-            'rating' => $request->rating ?? 0,    // Simpan rating
-            'kalori' => $request->kalori ?? 0, // Simpan kalori
+            'gambar' => $imageName,
+            'rating' => $request->rating ?? 0, 
         ]);
 
         return redirect()->back()->with('success', 'Menu berhasil ditambahkan!');
@@ -180,7 +207,7 @@ class AdminController extends Controller
     public function ordersIndex(Request $request)
     {
         $status = $request->query('status', 'all');
-        $query = pesanan::with(['user', 'keranjangg.menu'])->latest();
+        $query = pesanan::with(['userr', 'keranjangg.menuu'])->latest();
 
         if ($status !== 'all') {
             $query->where('status', $status);
@@ -193,7 +220,7 @@ class AdminController extends Controller
     public function orderUpdate(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
+            'status' => 'required|in:menunggu,dimasak,menuju alamat,selesai,dibatalkan'
         ]);
 
         $pesanan = pesanan::findOrFail($id);
@@ -214,7 +241,87 @@ class AdminController extends Controller
             $query->where('role', $role);
         }
 
-        $users = $query->get();
-        return view('admin.users.index', compact('users'));
+        $usersss = $query->get();
+        return view('admin.users.index', compact('usersss'));
+    }
+
+public function usersStore(Request $request){
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email',
+            'password' => 'required|string|min:6',
+            'role' => 'required|string',
+            'alamat' => 'required|string',
+            'no_hp' => ['required', 'regex:/^(?:\+62|0)8[0-9]{8,12}$/'],
+            'foto_profil' => 'nullable|image|mimes:jfif,jpeg,png,jpg,webp|max:2048']);
+        $imageName = null;
+        if ($request->hasFile('foto_profil')) {
+            $image = $request->file('foto_profil');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/pp'), $imageName); }
+        User::create([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'alamat' => $request->alamat,
+            'no_hp' => $request->no_hp,
+            'foto_profil' => $imageName,
+            'status_email' => 'unverified']);
+        return redirect()->back()->with('success', 'Pengguna berhasil ditambahkan!');
+    }
+
+    public function usersUpdate(Request $request, $id)
+    {
+       
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email,' . $id . ',id_user',
+            'password' => 'nullable|string|min:6',
+            'role' => 'required|string',
+            'alamat' => 'required|string',
+            'no_hp' => ['required', 'regex:/^(?:\+62|0)8[0-9]{8,12}$/'],
+            'foto_profil' => 'nullable|image|mimes:jfif,jpeg,png,jpg,webp|max:2048',
+        ]);
+        
+        if ($request->filled('password')) {
+            $request->merge(['password' => Hash::make($request->password)]);
+        } else {
+            $request->request->remove('password');
+        }
+        
+
+        $user = User::findOrFail($id);
+        $data = $request->except('foto_profil');
+
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto profil lama dari folder
+            if ($user->foto_profil && File::exists(public_path('images/pp/' . $user->foto_profil))) {
+                File::delete(public_path('images/pp/' . $user->foto_profil));
+            }
+
+            $image = $request->file('foto_profil');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/pp/'), $imageName);
+            $data['foto_profil'] = $imageName;
+        }
+
+        $user->update($data);
+
+        return redirect()->back()->with('success', 'Pengguna berhasil diperbarui!');
+    }
+
+    public function usersDestroy($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Hapus file foto profil dari folder public/images/pp sebelum menghapus data
+        if ($user->foto_profil && File::exists(public_path('images/pp/' . $user->foto_profil))) {
+            File::delete(public_path('images/pp/' . $user->foto_profil));
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Pengguna berhasil dihapus!');
     }
 }

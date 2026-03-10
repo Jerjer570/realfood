@@ -22,4 +22,11 @@ class menu extends Model
     protected $casts = ['rating' => 'float',
                         'harga' => 'float',
                         'kalori' => 'integer'];
+
+    public function keranjangg(){
+        return $this->hasMany(keranjang::class, 'id_menu');
+    }
+    public function detail_pesann(){
+        return $this->hasMany(detail_pesanan::class, 'id_menu');
+    }
 }

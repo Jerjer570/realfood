@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class sesi extends Model
+class session extends Model
 {
-    protected $table = 'sesi';
-    protected $primaryKey = 'id_sesi';
+    protected $table = 'sessions';
+    protected $primaryKey = 'id';
     protected $fillable = [
         'ip_address',
         'user_agent',
         'payload',
         'last_activity'
     ];
-    protected $guarded = ['id_sesi'];
+    protected $guarded = ['id'];
 
     public function userr(){
         return $this->belongsTo(user::class, 'id_user');

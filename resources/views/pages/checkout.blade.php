@@ -4,7 +4,7 @@
 <div class="pt-24 pb-16 bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto px-4">
         <h1 class="text-3xl font-black text-gray-900 mb-8 flex items-center gap-3 italic">
-            <i class="fas fa-shopping-cart text-green-600"></i>
+            <i class="fas fa-shopping-keranjang text-green-600"></i>
             Konfirmasi Pesanan
         </h1>
 
@@ -24,15 +24,15 @@
                         <div class="space-y-5">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Alamat Lengkap</label>
-                                <textarea name="address" required rows="3" 
+                                <textarea name="alamat_pengiriman" required rows="3" 
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none transition-all"
-                                    placeholder="Jl. Sehat No. 456, Sidoarjo">{{ old('address', Auth::user()->address) }}</textarea>
+                                    placeholder="Jl. Sehat No. 456, Sidoarjo">{{ old('alamat_pengiriman', Auth::user()->alamat) }}</textarea>
                             </div>
 
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Nomor Telepon</label>
-                                <input type="text" name="phone" required 
-                                    value="{{ old('phone', Auth::user()->phone) }}"
+                                <input type="text" name="no_hp" required 
+                                    value="{{ old('no_hp', Auth::user()->no_hp) }}"
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-green-600 font-bold outline-none transition-all"
                                     placeholder="0812xxxx">
                             </div>
@@ -52,7 +52,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 @foreach(['BCA', 'BNI', 'BRI', 'Mandiri'] as $bank)
                 <label class="relative cursor-pointer group">
-                    <input type="radio" name="payment_method" value="transfer_{{ strtolower($bank) }}" class="peer sr-only">
+                    <input type="radio" name="metode_pembayaran" value="transfer_{{ strtolower($bank) }}" class="peer sr-only">
                     <div class="px-4 py-3 rounded-2xl bg-gray-50 border-2 border-transparent peer-checked:border-green-600 peer-checked:bg-green-50 font-bold text-center text-sm transition-all hover:bg-gray-100">
                         {{ $bank }}
                     </div>
@@ -67,7 +67,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 @foreach(['Gopay', 'OVO', 'Dana', 'ShopeePay'] as $wallet)
                 <label class="relative cursor-pointer group">
-                    <input type="radio" name="payment_method" value="{{ strtolower($wallet) }}" class="peer sr-only">
+                    <input type="radio" name="metode_pembayaran" value="{{ strtolower($wallet) }}" class="peer sr-only">
                     <div class="px-4 py-3 rounded-2xl bg-gray-50 border-2 border-transparent peer-checked:border-green-600 peer-checked:bg-green-50 font-bold text-center text-sm transition-all hover:bg-gray-100">
                         {{ $wallet }}
                     </div>
@@ -80,7 +80,7 @@
         <div class="space-y-3">
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Lainnya</p>
             <label class="relative cursor-pointer group block">
-                <input type="radio" name="payment_method" value="cod" checked class="peer sr-only">
+                <input type="radio" name="metode_pembayaran" value="cod" checked class="peer sr-only">
                 <div class="px-6 py-4 rounded-2xl bg-gray-50 border-2 border-transparent peer-checked:border-green-600 peer-checked:bg-green-50 font-bold text-center transition-all hover:bg-gray-100">
                     COD (Bayar di Tempat)
                 </div>
@@ -97,8 +97,8 @@
                         <div class="space-y-4 mb-8">
                             @foreach($cartItems as $item)
                             <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-500 font-bold">{{ $item->food->name }} (x{{ $item->quantity }})</span>
-                                <span class="font-black text-gray-900 italic">Rp {{ number_format($item->food->price * $item->quantity, 0, ',', '.') }}</span>
+                                <span class="text-gray-500 font-bold">{{ $item->menuu->nama_menu }} (x{{ $item->kuantitas }})</span>
+                                <span class="font-black text-gray-900 italic">Rp {{ number_format($item->menuu->harga * $item->kuantitas, 0, ',', '.') }}</span>
                             </div>
                             @endforeach
 

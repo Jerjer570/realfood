@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\menu;
 
 
-class menuController extends Controller
+class FoodController extends Controller
 {
 
     public function daftarMenu(){

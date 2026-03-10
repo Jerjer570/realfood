@@ -45,16 +45,20 @@
                     <a href="{{ route('cart.index') }}" class="w-11 h-11 flex items-center justify-center bg-gray-50 rounded-2xl text-gray-600 hover:bg-green-50 hover:text-green-600 transition relative">
                         <i class="fas fa-shopping-basket text-sm"></i>
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
-                            0
+                                @if(session('cartCount', 0) > 99)
+                                    99+
+                                @else
+                                    {{ session('cartCount', 0) }}
+                                @endif
                         </span>
                     </a>
 
                     <div class="relative">
                         <button @click="openProfile = !openProfile" class="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition duration-300">
                             <div class="w-8 h-8 bg-green-600 rounded-xl flex items-center justify-center text-white text-[10px] font-black uppercase">
-                                {{ substr(Auth::user()->name, 0, 1) }}
+                                {{ substr(Auth::user()->nama, 0, 1) }}
                             </div>
-                            <span class="text-xs font-black text-gray-700 hidden sm:block">{{ Auth::user()->name }}</span>
+                            <span class="text-xs font-black text-gray-700 hidden sm:block">{{ Auth::user()->nama }}</span>
                             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
                         </button>
                         
@@ -66,7 +70,7 @@
                              style="display: none;">
                             
                             <div class="px-4 py-4 border-b border-gray-50 mb-2 text-center sm:text-left">
-                                <p class="text-xs font-black text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                                <p class="text-xs font-black text-gray-900 truncate">{{ Auth::user()->nama }}</p>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{{ Auth::user()->role }}</p>
                             </div>
 

@@ -23,7 +23,7 @@
                             {{ $loop->iteration }}
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">{{ $item->nama }}</p>
+                            <p class="font-black text-gray-900">{{ $item->nama_menu }}</p>
                             <p class="text-xs text-gray-500">{{ $item->count }} Terjual</p>
                         </div>
                     </div>
@@ -41,9 +41,16 @@
         <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8">
             <h2 class="text-xl font-black text-gray-900 italic mb-8">Revenue Trend</h2>
             
-            <div class="h-[300px] w-full">
-                <canvas id="revenueChart"></canvas>
-            </div>
+            @if(empty($labels) || empty($totals))
+                <div class="text-center py-10">
+                    <p class="text-gray-400 italic">Belum ada data penjualan untuk grafik.</p>
+                </div>
+            @else
+                <div class="h-[300px] w-full">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            @endif
+            
         </div>
     </div>
 </div>
@@ -62,10 +69,10 @@
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], // Data contoh seminggu
+                labels: @json($labels), // Data contoh seminggu
                 datasets: [{
                     label: 'Pendapatan (Rp)',
-                    data: [150000, 450000, 300000, 700000, 550000, 900000, 1200000], // Sesuaikan dengan data asli nanti
+                    data: @json($totals), // Sesuaikan dengan data asli nanti
                     borderColor: '#16a34a',
                     borderWidth: 4,
                     pointBackgroundColor: '#ffffff',

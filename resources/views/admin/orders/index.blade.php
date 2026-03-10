@@ -11,7 +11,7 @@
         
         {{-- Filter Status --}}
         <div class="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
-            @foreach(['all', 'pending', 'processing', 'completed', 'cancelled'] as $status)
+            @foreach(['all', 'Menunggu', 'Dimasak', 'Menuju Alamat', 'Selesai', 'Dibatalkan'] as $status)
                 <a href="?status={{ $status }}" 
                    class="px-5 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap uppercase tracking-widest
                    {{ request('status', 'all') == $status 
@@ -45,9 +45,10 @@
                         <h3 class="font-black text-gray-900 text-lg">#{{ $pesanan->id_pesanan }}</h3>
                     </div>
                     <div class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest
-                        @if($pesanan->status == 'pending') bg-yellow-100 text-yellow-700 
-                        @elseif($pesanan->status == 'processing') bg-blue-100 text-blue-700
-                        @elseif($pesanan->status == 'completed') bg-green-100 text-green-700
+                        @if($pesanan->status == 'menunggu') bg-yellow-100 text-yellow-700 
+                        @elseif($pesanan->status == 'dimasak') bg-blue-100 text-blue-700
+                        @elseif($pesanan->status == 'menuju alamat') bg-blue-100 text-blue-700
+                        @elseif($pesanan->status == 'selesai') bg-green-100 text-green-700
                         @else bg-red-100 text-red-700 @endif">
                         {{ $pesanan->status }}
                     </div>
@@ -61,7 +62,7 @@
                             <i class="fas fa-user"></i>
                         </div>
                         <div>
-                            <p class="font-black text-gray-900">{{ $pesanan->user->nama }}</p>
+                            <p class="font-black text-gray-900">{{ $pesanan->userr->nama }}</p>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ $pesanan->created_at->format('d M Y • H:i') }}</p>
                         </div>
                     </div>
@@ -71,10 +72,10 @@
                         @foreach($pesanan->keranjangg as $item)
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-gray-600 font-medium">
-    {{ $item->pesanan->nama }} 
-    <b class="text-gray-900 ml-1">x{{ $item->kuantitas }}</b>
-</span>
-                                <span class="font-black text-gray-900">Rp {{ number_format($item->harga * $item->kuantitas, 0, ',', '.') }}</span>
+                                    {{ $item->menuu->nama_menu }} 
+                                    <b class="text-gray-900 ml-1">x{{ $item->kuantitas }}</b>
+                                </span>
+                                <span class="font-black text-gray-900">Rp {{ number_format($item->menuu->harga * $item->kuantitas, 0, ',', '.') }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -97,27 +98,49 @@
 
                     {{-- Action Buttons --}}
                     <div class="flex gap-3">
-                        @if($pesanan->status == 'pending')
+                        @if($pesanan->status == 'menunggu')
                             <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
                                 @csrf @method('PUT')
-                                <input type="hidden" name="status" value="processing">
+                                <input type="hidden" name="status" value="dimasak">
                                 <button class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-100 transition-all">
                                     Proses
                                 </button>
                             </form>
                             <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
                                 @csrf @method('PUT')
-                                <input type="hidden" name="status" value="cancelled">
+                                <input type="hidden" name="status" value="dibatalkan">
                                 <button class="w-full bg-red-50 text-red-600 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all">
                                     Batal
                                 </button>
                             </form>
-                        @elseif($pesanan->status == 'processing')
+                        @elseif($pesanan->status == 'dimasak')
                             <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="w-full">
                                 @csrf @method('PUT')
-                                <input type="hidden" name="status" value="completed">
+                                <input type="hidden" name="status" value="menuju alamat">
+                                <button class="w-full bg-blue-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-100 transition-all">
+                                    Kirim ke Pelanggan
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
+                                @csrf @method('PUT')
+                                <input type="hidden" name="status" value="dibatalkan">
+                                <button class="w-full bg-red-50 text-red-600 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all">
+                                    Batal
+                                </button>
+                            </form>
+                        @elseif($pesanan->status == 'menuju alamat')
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="w-full">
+                                @csrf @method('PUT')
+                                <input type="hidden" name="status" value="selesai">
                                 <button class="w-full bg-green-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 hover:shadow-lg hover:shadow-green-100 transition-all">
                                     Selesaikan Pesanan
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.orders.update', $pesanan->id_pesanan) }}" method="POST" class="flex-1">
+                                @csrf @method('PUT')
+                                <input type="hidden" name="status" value="dibatalkan">
+                                <button class="w-full bg-red-50 text-red-600 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-all">
+                                    Batal
                                 </button>
                             </form>
                         @else
